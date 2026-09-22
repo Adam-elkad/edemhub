@@ -1,76 +1,118 @@
+Je hebt 1 nieuw bericht 
+
+Spring naar content
+Mail van ZAVO gebruiken met schermlezers
+1 van 25
+(geen onderwerp)
+External
+Inbox
+
+edemi bababoy <bababoy345648@gmail.com>
+20:28 (0 minuten geleden)
+aan mij
+
+Zo te zien is dit bericht in het Engels
 <!DOCTYPE html>
-<html>
+<html lang="nl">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EdemHub</title>
 
     <style>
+        * {
+            box-sizing: border-box;
+        }
+
         body {
             margin: 0;
             font-family: Arial, sans-serif;
-            background: #111827;
+            background: #0f172a;
             color: white;
+        }
+
+        header {
+            padding: 25px;
             text-align: center;
+            background: #111827;
         }
 
-        h1 {
-            margin-top: 50px;
-            font-size: 45px;
+        header h1 {
+            margin: 0;
+            font-size: 40px;
         }
 
-        p {
-            color: #9ca3af;
+        header p {
+            color: #94a3b8;
+        }
+
+        .search {
+            display: block;
+            width: 90%;
+            max-width: 500px;
+            margin: 20px auto;
+            padding: 14px;
+            border-radius: 12px;
+            border: none;
+            font-size: 16px;
         }
 
         .grid {
-            display: flex;
-            justify-content: center;
-            gap: 25px;
-            flex-wrap: wrap;
-            margin-top: 50px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            padding: 30px;
+            max-width: 1000px;
+            margin: auto;
         }
 
         .card {
-            background: #1f2937;
-            width: 200px;
+            background: #1e293b;
             padding: 25px;
             border-radius: 18px;
+            text-align: center;
+            transition: 0.2s;
         }
 
-        button {
-            padding: 10px 25px;
-            border: none;
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card h2 {
+            margin-top: 0;
+        }
+
+        .card p {
+            color: #94a3b8;
+        }
+
+        .button {
+            display: inline-block;
+            padding: 11px 20px;
+            margin-top: 10px;
+            background: #2563eb;
+            color: white;
+            text-decoration: none;
             border-radius: 10px;
-            cursor: pointer;
+        }
+
+        footer {
+            text-align: center;
+            padding: 30px;
+            color: #64748b;
         }
     </style>
 </head>
 
 <body>
 
-    <h1>🎮 EdemHub</h1>
-    <p>Games • School • Websites</p>
+    <header>
+        <h1>🚀 EdemHub</h1>
+        <p>Mijn persoonlijke web hub</p>
 
-    <div class="grid">
-
-        <div class="card">
-            <h2>🎮 Games</h2>
-            <p>Mijn games</p>
-            <button>Open</button>
-        </div>
-
-        <div class="card">
-            <h2>📚 School</h2>
-            <p>Handige schooltools</p>
-            <button>Open</button>
-        </div>
-
-        <div class="card">
-            <h2>🌐 Websites</h2>
-            <p>Mijn websites</p>
-            <button>Open</button>
-        </div>
-
-    </div>
-
-</body>
-</html>
+        <input
+            class="search"
+            type="text"
+            id="search"
+            placeholder="Zoek op EdemHub..."
+            onkeyup="searchCards
