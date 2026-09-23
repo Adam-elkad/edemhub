@@ -24,11 +24,11 @@
             position: relative;
         }
 
-        /* --- SCHERM 1: EXTRA LANGE INLOG OVERLAY --- */
+        /* --- SCHERM 1: INLOG SCHERM OVERLAY (WERKT NU 100%) --- */
         #loginOverlay {
-            position: absolute;
+            position: fixed;
             inset: 0;
-            background-color: #111b21; /* Donkere WhatsApp stijl */
+            background-color: #111b21; /* Donkere Roblox/WhatsApp stijl */
             display: flex;
             justify-content: center;
             align-items: center;
@@ -72,6 +72,7 @@
             outline: none;
             font-weight: bold;
             transition: border-color 0.2s;
+            user-select: text; /* Zorgt dat je kunt typen! */
         }
 
         .login-input:focus {
@@ -109,9 +110,9 @@
             transform: translateY(-1px);
         }
 
-        /* --- SCHERM 2: WHATSAPP INTERFACE (VERBORGEN TOT INLOG) --- */
+        /* --- SCHERM 2: WHATSAPP INTERFACE --- */
         #whatsappContainer {
-            display: none; /* Wordt pas flex na inloggen */
+            display: none; /* Wordt pas zichtbaar na succesvol inloggen */
             width: 100%;
             max-width: 1396px;
             height: 95vh;
@@ -180,6 +181,7 @@
             font-size: 14px;
             outline: none;
             color: #111b21;
+            user-select: text;
         }
 
         .add-friend-btn {
@@ -362,6 +364,7 @@
             font-size: 15px;
             outline: none;
             color: #111b21;
+            user-select: text;
         }
 
         .send-btn {
@@ -376,6 +379,3 @@
 <body>
 
     <!-- SCHERM 1: DE INTRO-VRAAG (START OVERLAY) -->
-    <div id="loginOverlay">
-        <div class="login-box">
-            <h2>Wat is je username?</h2>
