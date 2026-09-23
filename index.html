@@ -108,7 +108,7 @@
             position: absolute;
             inset: 0;
             background: #0f172a;
-            display: none; /* Staat standaard uit */
+            display: none; /* Hidden by default */
             flex-direction: column;
             align-items: center;
             justify-content: center;
@@ -151,7 +151,7 @@
             text-shadow: 0 2px 4px rgba(0,0,0,0.5);
         }
 
-        /* Het Schaakbord Canvas */
+        /* The 21x21 Chessboard Canvas */
         #snakeCanvas {
             background: #1e293b;
             border: 4px solid #334155;
@@ -180,7 +180,7 @@
 
         <div class="main-container">
             <div class="games-grid">
-                <!-- Klik hier om direct van scherm te wisselen -->
+                <!-- Pressing this changes your screen immediately -->
                 <div class="game-card" onclick="switchToSnakePlatform()">
                     <div class="game-thumbnail">🐍</div>
                     <div class="game-info"><div class="game-title">Retro Snake</div></div>
@@ -192,11 +192,11 @@
     <!-- SCHERM 2: APART SNAKE SPEELPLATFORM -->
     <div id="snakePlatform">
         <div class="top-navigation">
-            <button class="backspace-btn" onclick="returnToHomePortal()">⬅ Terug</button>
+            <button class="backspace-btn" onclick="returnToHomePortal()">⬅ TERUG</button>
             <div class="score-counter">SCORE: <span id="liveScore">0</span></div>
         </div>
 
-        <!-- Schaakbord veld -->
+        <!-- 21x21 Chessboard grid area -->
         <canvas id="snakeCanvas" width="378" height="378"></canvas>
         
         <div class="controls-note">Gebruik de Pijltjestoetsen om te sturen</div>
@@ -208,7 +208,7 @@
         const canvas = document.getElementById("snakeCanvas");
         const ctx = canvas.getContext("2d");
         
-        // 21x21 schaakbord cellen (378px / 21 = 18px per vakje)
+        // Sizing dimensions: 378px / 21 cells = exactly 18px per pixel box
         const gridSizeUnits = 21;
         const cellPixelDimension = 18;
 
@@ -218,7 +218,7 @@
         let vectorY = 0;
         let scoreTracker = 0;
 
-        // WISSELEN VAN SCHERM (WERKT NU ECHT)
+        // INSTANT SCREEN SWITCHER SYSTEM
         function switchToSnakePlatform() {
             document.getElementById("portalScreen").style.display = "none";
             document.getElementById("snakePlatform").style.display = "flex";
@@ -237,14 +237,14 @@
             document.getElementById("portalScreen").style.display = "flex";
         }
 
-        // GAME LOGICA INITIALISEREN
+        // SNAKE ENGINE CORE INITIALIZATION
         function initializeSnakeGame() {
             if (runtimeLoopTicker) clearInterval(runtimeLoopTicker);
             
             scoreTracker = 0;
             document.getElementById("liveScore").innerText = scoreTracker;
             
-            // Startpositie: Hoofd en een klein lijfje erachter
+            // Standard Starting Setup: Head block + trailing single joint body frame centered
             snakeCoordinates = [
                 { x: 10, y: 10 },
                 { x: 9, y: 10 }
@@ -255,7 +255,7 @@
 
             generateRandomApplePosition();
 
-            // Toetsenbord koppelen
+            // Keyboard controller assignment
             window.onkeydown = function(e) {
                 if (e.key === "ArrowLeft" && vectorX === 0)  { vectorX = -1; vectorY = 0; }
                 if (e.key === "ArrowRight" && vectorX === 0) { vectorX = 1;  vectorY = 0; }
@@ -270,27 +270,27 @@
             activeApple.x = Math.floor(Math.random() * gridSizeUnits);
             activeApple.y = Math.floor(Math.random() * gridSizeUnits);
 
-            // Voorkom dat de appel in de slang spawnt
+            // Re-roll if apple accidentally spawns inside the snake's body coordinates
             if (snakeCoordinates.some(part => part.x === activeApple.x && part.y === activeApple.y)) {
                 generateRandomApplePosition();
             }
         }
 
-        // MOTOR FRAME LOGICA (SNAKE BEWEGING EN COLLISION)
+        // PHYSICS MATRIX CALCULATION LOOP
         function processEngineFrameUpdate() {
-            // FIX: Maakt gebruik van de juiste array index [0] voor het hoofd
+            // FIXED: Now accurately reads array index [0] to track the head location properly
             let structuralHead = { 
                 x: snakeCoordinates[0].x + vectorX, 
                 y: snakeCoordinates[0].y + vectorY 
             };
 
-            // Check muurbotsing (Start direct opnieuw)
+            // Outer boundary collision detection (Soft restart engine)
             if (structuralHead.x < 0 || structuralHead.x >= gridSizeUnits || structuralHead.y < 0 || structuralHead.y >= gridSizeUnits) {
                 initializeSnakeGame();
                 return;
             }
 
-            // Check lichaamsbotsing (Start direct opnieuw)
+            // Self intersection body collision check (Soft restart engine)
             if (snakeCoordinates.some(segment => segment.x === structuralHead.x && segment.y === structuralHead.y)) {
                 initializeSnakeGame();
                 return;
@@ -298,20 +298,16 @@
 
             snakeCoordinates.unshift(structuralHead);
 
-            // Als de slang een appel pakt
+            // Target intercept collision checks (Eating mechanics)
             if (structuralHead.x === activeApple.x && structuralHead.y === activeApple.y) {
                 scoreTracker++;
                 document.getElementById("liveScore").innerText = scoreTracker;
                 generateRandomApplePosition();
             } else {
-                // Wordt alleen kleiner als hij GEEN appel pakt (groeien effect)
+                // Drop tail item if no growth constraint was triggered
                 snakeCoordinates.pop();
             }
 
             renderSimulationFrames();
         }
-
-        // SCHAAKBORD EN ENTITEITEN TEKENEN
-        function renderSimulationFrames() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
 
