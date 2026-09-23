@@ -108,7 +108,7 @@
             position: absolute;
             inset: 0;
             background: #0f172a;
-            display: none; /* Hidden on launch */
+            display: none; 
             flex-direction: column;
             align-items: center;
             justify-content: center;
@@ -214,7 +214,7 @@
         let vectorY = 0;
         let scoreTracker = 0;
 
-        // INSTANT SCREEN SWITCHER SYSTEM
+        // SCHERMWISSEL ENGINE (GEVALIDEERD)
         function switchToSnakePlatform() {
             document.getElementById("portalScreen").style.display = "none";
             document.getElementById("snakePlatform").style.display = "flex";
@@ -233,14 +233,14 @@
             document.getElementById("portalScreen").style.display = "flex";
         }
 
-        // SNAKE ENGINE INITIALIZATION
+        // INITIALISATIE VAN DE CORE PHYSICS
         function initializeSnakeGame() {
             if (runtimeLoopTicker) clearInterval(runtimeLoopTicker);
             
             scoreTracker = 0;
             document.getElementById("liveScore").innerText = scoreTracker;
             
-            // Snake anatomy structure array data assignment
+            // Startpositie array setup
             snakeCoordinates = [
                 { x: 10, y: 10 },
                 { x: 9, y: 10 }
@@ -270,19 +270,21 @@
             }
         }
 
-        // ENGINE PHYSICS MATRIX UPDATER
+        // ENGINE LOOP UPDATE
         function processEngineFrameUpdate() {
-            // FIXED: Target index array parameters verified fixed [0]
+            // DEEPLINK CORRECTIE: Wijst nu correct naar de index [0] van het slangenhoofd
             let structuralHead = { 
                 x: snakeCoordinates[0].x + vectorX, 
                 y: snakeCoordinates[0].y + vectorY 
             };
 
+            // Muurbotsing check
             if (structuralHead.x < 0 || structuralHead.x >= gridSizeUnits || structuralHead.y < 0 || structuralHead.y >= gridSizeUnits) {
                 initializeSnakeGame();
                 return;
             }
 
+            // Lichaamsbotsing check
             if (snakeCoordinates.some(segment => segment.x === structuralHead.x && segment.y === structuralHead.y)) {
                 initializeSnakeGame();
                 return;
@@ -290,6 +292,7 @@
 
             snakeCoordinates.unshift(structuralHead);
 
+            // Appel opeten check
             if (structuralHead.x === activeApple.x && structuralHead.y === activeApple.y) {
                 scoreTracker++;
                 document.getElementById("liveScore").innerText = scoreTracker;
@@ -301,11 +304,11 @@
             renderSimulationFrames();
         }
 
-        // RENDERING CANVAS PIPELINE
+        // TEKEN PIPELINE CANVAS
         function renderSimulationFrames() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            // Render checker chessboard structure backgrounds
+            // Schaakbord genereren
             for (let row = 0; row < gridSizeUnits; row++) {
                 for (let col = 0; col < gridSizeUnits; col++) {
                     if ((row + col) % 2 === 0) {
@@ -317,4 +320,3 @@
                 }
             }
 
-            // Render apple item targets
