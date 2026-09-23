@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EdemGames - Poki Style</title>
+    <title>EdemGames - Poki Theater Edition</title>
     <style>
         * {
             box-sizing: border-box;
@@ -14,14 +14,14 @@
         }
 
         body {
-            background: #0f172a;
+            background: #5c3bc4; /* De iconische paarse Poki kleur */
             color: white;
             overflow-x: hidden;
         }
 
         /* Top Bar */
         header {
-            background: #1e293b;
+            background: #ffffff;
             padding: 15px 30px;
             display: flex;
             align-items: center;
@@ -29,20 +29,24 @@
             position: sticky;
             top: 0;
             z-index: 100;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
         }
 
         .logo {
             font-size: 26px;
             font-weight: 900;
-            color: #3b82f6;
+            color: #5c3bc4;
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: -1px;
             cursor: pointer;
         }
 
         .logo span {
-            color: #10b981;
+            background: #ffcc00;
+            color: black;
+            padding: 2px 8px;
+            border-radius: 8px;
+            margin-left: 4px;
         }
 
         /* Categorie Knoppen */
@@ -50,24 +54,25 @@
             display: flex;
             justify-content: center;
             gap: 12px;
-            padding: 20px;
-            background: #0f172a;
+            padding: 25px;
         }
 
         .category-btn {
-            background: #1e293b;
+            background: rgba(255, 255, 255, 0.2);
             color: white;
             border: none;
-            padding: 10px 20px;
-            border-radius: 20px;
+            padding: 12px 24px;
+            border-radius: 25px;
             cursor: pointer;
             font-weight: bold;
-            font-size: 14px;
+            font-size: 15px;
             transition: 0.2s;
         }
 
-        .category-btn.active {
-            background: #3b82f6;
+        .category-btn.active, .category-btn:hover {
+            background: #ffcc00;
+            color: black;
+            transform: scale(1.05);
         }
 
         /* Games Grid Layout */
@@ -75,6 +80,7 @@
             max-width: 1200px;
             margin: 0 auto;
             padding: 20px;
+            transition: opacity 0.3s;
         }
 
         .games-grid {
@@ -84,255 +90,225 @@
         }
 
         .game-card {
-            background: #1e293b;
-            border-radius: 16px;
+            border-radius: 20px;
             overflow: hidden;
             cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
+            transition: transform 0.15s, box-shadow 0.15s;
             display: flex;
             flex-direction: column;
             aspect-ratio: 1 / 1;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+            box-shadow: 0 6px 0 rgba(0,0,0,0.2);
+            padding: 10px;
+            text-align: center;
+            align-items: center;
+            justify-content: center;
         }
 
+        /* Poki kleurenkaarten */
+        .game-card.pink { background: #ff5376; }
+        .game-card.green { background: #2bd980; }
+        .game-card.blue { background: #2cc9f3; }
+        .game-card.orange { background: #ff9100; }
+
         .game-card:hover {
-            transform: scale(1.05);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.4);
+            transform: translateY(-4px);
+            box-shadow: 0 10px 0 rgba(0,0,0,0.2);
+        }
+
+        .game-card:active {
+            transform: translateY(4px);
+            box-shadow: 0 2px 0 rgba(0,0,0,0.2);
         }
 
         .game-thumbnail {
-            flex: 1;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 50px;
-        }
-
-        .game-info {
-            padding: 12px;
-            background: rgba(0, 0, 0, 0.4);
-            text-align: center;
+            font-size: 55px;
+            margin-bottom: 8px;
         }
 
         .game-title {
-            font-size: 14px;
-            font-weight: bold;
+            font-size: 15px;
+            font-weight: 800;
+            color: black;
         }
 
-        /* --- NIEUW VOLLEDIG SPEELSCHERM (SPACE CLICKER) --- */
-        #gameScreen {
+        /* --- POKI BLACK THEATER OVERLAY (HET ZWARTE SCHERM) --- */
+        #theaterScreen {
             position: fixed;
             inset: 0;
-            background: radial-gradient(circle, #1e1b4b 0%, #090514 100%);
+            background: #000000; /* Pikzwart scherm zoals Poki */
             z-index: 1000;
             display: none;
             flex-direction: column;
-            padding: 20px;
+            justify-content: center;
+            align-items: center;
         }
 
-        .game-header {
+        /* Laadscherm animatie */
+        #loaderArea {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .poki-spinner {
+            width: 60px;
+            height: 60px;
+            border: 6px solid #333;
+            border-top: 6px solid #ffcc00;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* De actieve game container */
+        #gameWrapper {
+            width: 100%;
+            max-width: 800px;
+            height: 80vh;
+            background: #111827;
+            border-radius: 24px;
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 0 40px rgba(255,255,255,0.05);
+            border: 2px solid #222;
+        }
+
+        .theater-header {
+            background: #111;
+            padding: 15px 25px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding-bottom: 15px;
-            border-bottom: 2px solid rgba(255,255,255,0.1);
+            border-bottom: 1px solid #222;
         }
 
-        .back-btn {
-            background: #ef4444;
+        .theater-title {
+            font-size: 20px;
+            font-weight: 800;
+            color: #ffcc00;
+        }
+
+        .close-btn {
+            background: #ff5376;
             color: white;
             border: none;
-            padding: 10px 20px;
-            border-radius: 10px;
+            padding: 10px 22px;
+            border-radius: 12px;
+            font-weight: 800;
             cursor: pointer;
-            font-weight: bold;
-            font-size: 14px;
+            transition: 0.2s;
         }
 
-        .back-btn:hover { background: #dc2626; }
+        .close-btn:hover { background: #e12d53; transform: scale(1.05); }
 
-        .game-body {
+        .game-canvas-area {
             flex: 1;
-            display: flex;
-            position: relative;
-            overflow: hidden;
-        }
-
-        /* Klikbare ruimte links */
-        .click-area {
-            flex: 2;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            position: relative;
-            border-right: 2px solid rgba(255,255,255,0.1);
-        }
-
-        .asteroid {
-            width: 160px;
-            height: 160px;
-            background: #4b5563;
-            border-radius: 50%;
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 70px;
-            cursor: pointer;
-            box-shadow: 0 0 30px rgba(0, 0, 0, 0.6), inset -10px -10px 20px #1f2937;
-            transition: transform 0.05s;
+            background: #090d16;
+            position: relative;
         }
 
-        .asteroid:active {
-            transform: scale(0.92);
-        }
-
-        /* Shop paneel rechts */
-        .shop-panel {
-            flex: 1;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            background: rgba(0,0,0,0.3);
-        }
-
-        .shop-item {
-            background: #1f2937;
-            padding: 15px;
+        /* Interne arcade knop styling */
+        .arcade-btn {
+            background: #2563eb;
+            color: white;
+            border: none;
+            padding: 16px 32px;
+            font-size: 22px;
             border-radius: 14px;
-            border: 1px solid #374151;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
             cursor: pointer;
-        }
-
-        .shop-item:hover { background: #374151; }
-        .shop-item h4 { font-size: 15px; margin-bottom: 2px; }
-        .shop-item p { font-size: 12px; color: #9ca3af; }
-
-        .price-tag {
-            background: #eab308;
-            color: black;
-            padding: 6px 12px;
-            border-radius: 8px;
             font-weight: bold;
-            font-size: 14px;
+            box-shadow: 0 5px 0 #1d4ed8;
         }
+        .arcade-btn:active { transform: translateY(4px); box-shadow: 0 1px 0 #1d4ed8; }
     </style>
 </head>
 <body>
 
-    <!-- Portal Scherm -->
+    <!-- PORTAL HOOFDSCHERM -->
     <div id="portalScreen">
         <header>
-            <div class="logo">Edem<span>Games</span></div>
-            <div style="font-weight: bold; color: #10b981;">🎰 Poki Edition</div>
+            <div class="logo">Poki<span>Hub</span></div>
+            <div style="font-weight: bold; color: #5c3bc4; background: #ffcc00; padding: 5px 12px; border-radius: 15px;">Edem's Arcade</div>
         </header>
 
         <div class="categories">
-            <button class="category-btn active">Alle Games</button>
-            <button class="category-btn">Klikkers</button>
-            <button class="category-btn">Arcade</button>
+            <button class="category-btn active">🕹️ Alle Spellen</button>
         </div>
 
         <div class="main-container">
             <div class="games-grid">
-                <!-- SPACE CLICKER CARD -->
-                <div class="game-card" onclick="openSpaceClicker()">
-                    <div class="game-thumbnail" style="background: linear-gradient(135deg, #ec4899, #8b5cf6);">🚀</div>
-                    <div class="game-info">
-                        <div class="game-title">Space Clicker</div>
-                    </div>
+                <!-- Game 1: Space Clicker -->
+                <div class="game-card pink" onclick="openTheater('clicker', 'Space Clicker')">
+                    <div class="game-thumbnail">🚀</div>
+                    <div class="game-info"><div class="game-title">Space Clicker</div></div>
+                </div>
+                <!-- Game 2: Retro Snake -->
+                <div class="game-card green" onclick="openTheater('snake', 'Retro Snake')">
+                    <div class="game-thumbnail">🐍</div>
+                    <div class="game-info"><div class="game-title">Retro Snake</div></div>
+                </div>
+                <!-- Game 3: Geheugenspel -->
+                <div class="game-card blue" onclick="openTheater('memory', 'Geheugenspel')">
+                    <div class="game-thumbnail">🧠</div>
+                    <div class="game-info"><div class="game-title">Geheugenspel</div></div>
+                </div>
+                <!-- Game 4: Reactietest -->
+                <div class="game-card orange" onclick="openTheater('reaction', 'Reactietest')">
+                    <div class="game-thumbnail">⚡</div>
+                    <div class="game-info"><div class="game-title">Reactietest</div></div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- HET NIEUWE IN-GAME SCHERM (SPACE CLICKER) -->
-    <div id="gameScreen">
-        <div class="game-header">
-            <div>
-                <h2 style="color: #ec4899; font-size: 26px;">Space Clicker</h2>
-                <p style="color: #9ca3af; font-size: 14px;">Klik op de asteroïde en verover het heelal!</p>
-            </div>
-            <button class="back-btn" onclick="backToPortal()">🏠 SLUIT GAME</button>
+    <!-- HET POKI ZWARTE BIOSCOOPSCHERM OVERLAY -->
+    <div id="theaterScreen">
+        <!-- Nep Poki laadeffect -->
+        <div id="loaderArea">
+            <div class="poki-spinner"></div>
+            <h3 style="letter-spacing: 1px; color: #ffcc00;" id="loadingText">SPEL LADEN...</h3>
         </div>
 
-        <div class="game-body">
-            <!-- Linker helft: Spelen -->
-            <div class="click-area">
-                <h1 id="scrapText" style="font-size: 40px; color: #eab308; margin-bottom: 25px;">🪙 0 Space Scrap</h1>
-                <div class="asteroid" id="asteroidTarget" onclick="clickAsteroid()">🪨</div>
-                <p style="margin-top: 20px; color: #9ca3af;" id="powerText">+1 per klik</p>
+        <!-- De actieve game container -->
+        <div id="gameWrapper">
+            <div class="theater-header">
+                <div class="theater-title" id="theaterGameTitle">Game</div>
+                <button class="close-btn" onclick="closeTheater()">❌ SLUITEN</button>
             </div>
-
-            <!-- Rechter helft: Upgrades kopen -->
-            <div class="shop-panel">
-                <h3 style="color: #10b981; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 8px;">Upgrades</h3>
-                
-                <!-- Upgrade 1 -->
-                <div class="shop-item" onclick="buyUpgrade('click')">
-                    <div>
-                        <h4>Plasma Laser</h4>
-                        <p>Je kliks zijn +1 waard</p>
-                    </div>
-                    <div class="price-tag" id="clickPrice">🪙 15</div>
-                </div>
-
-                <!-- Upgrade 2 -->
-                <div class="shop-item" onclick="buyUpgrade('auto')">
-                    <div>
-                        <h4>Mijnschip</h4>
-                        <p>Genereert +1 scrap per seconde</p>
-                    </div>
-                    <div class="price-tag" id="autoPrice">🪙 50</div>
-                </div>
+            <div class="game-canvas-area" id="canvasContainer">
+                <!-- Hier wordt de gekozen game direct ingeladen via JS -->
             </div>
         </div>
     </div>
 
     <script>
-        // Spelvariabelen
-        let spaceScrap = 0;
-        let clickPower = 1;
-        let autoIncom = 0;
+        // --- THEATER NAVIGATIE MOTOR ---
+        function openTheater(gameId, gameTitle) {
+            // Verberg de portal, toon het zwarte scherm en de loader
+            document.getElementById('portalScreen').style.opacity = "0.3";
+            document.getElementById('theaterScreen').style.display = "flex";
+            document.getElementById('loaderArea').style.display = "flex";
+            document.getElementById('gameWrapper').style.display = "none";
+            document.getElementById('loadingText').innerText = gameTitle.toUpperCase() + " LADEN...";
 
-        let upgradePrices = {
-            click: 15,
-            auto: 50
-        };
-
-        // SCHERM NAVIGATIE
-        function openSpaceClicker() {
-            document.getElementById('portalScreen').style.display = "none";
-            document.getElementById('gameScreen').style.display = "flex";
+            // Na 1 seconde laden start de game in het donkere theater, net als op Poki!
+            setTimeout(() => {
+                document.getElementById('loaderArea').style.display = "none";
+                document.getElementById('gameWrapper').style.display = "flex";
+                document.getElementById('theaterGameTitle').innerText = gameTitle;
+                buildMiniGame(gameId);
+            }, 1000);
         }
 
-        function backToPortal() {
-            document.getElementById('gameScreen').style.display = "none";
-            document.getElementById('portalScreen').style.display = "block";
-        }
-
-        // GAMEPLAY LOGICA
-        function clickAsteroid() {
-            spaceScrap += clickPower;
-            updateUI();
-            createFloatingText();
-        }
-
-        function buyUpgrade(type) {
-            if (type === 'click' && spaceScrap >= upgradePrices.click) {
-                spaceScrap -= upgradePrices.click;
-                clickPower += 1;
-                upgradePrices.click = Math.floor(upgradePrices.click * 1.5);
-            } 
-            else if (type === 'auto' && spaceScrap >= upgradePrices.auto) {
-                spaceScrap -= upgradePrices.auto;
-                autoIncom += 1;
-                upgradePrices.auto = Math.floor(upgradePrices.auto * 1.6);
-            }
-            updateUI();
-        }
-
+        function closeTheater() {
+            document.getElementById('theaterScreen').style.display = "none";
