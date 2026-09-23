@@ -230,7 +230,7 @@
         const canvas = document.getElementById("snakeCanvas");
         const ctx = canvas.getContext("2d");
         
-        // Exact 20x20 vakjes (360px breedte / 20 = 18px per vakje)
+        // Exact 20x20 vakjes
         const gridSizeUnits = 20;
         const cellPixelDimension = 18;
 
@@ -271,7 +271,7 @@
                 document.getElementById("snakeCanvas").style.display = "block";
                 document.getElementById("gameScoreContainer").style.display = "block";
                 
-                // Start direct met spelen!
+                // Start direct met spelen
                 launchChessboardEngine();
             } else if (option === 'skins') {
                 alert("Skins menu openen...");
