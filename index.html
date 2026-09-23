@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Edem Surfer - Premium Edition</title>
+    <title>Edem Surfer - Volledig Werkend</title>
     <style>
         * {
             box-sizing: border-box;
@@ -51,8 +51,8 @@
             z-index: 10;
         }
 
-        #scoreBox { color: #f59e0b; background: rgba(0,0,0,0.4); padding: 5px 12px; border-radius: 8px; }
-        #coinBox { color: #eab308; background: rgba(0,0,0,0.4); padding: 5px 12px; border-radius: 8px; }
+        #scoreBox { color: #f59e0b; background: rgba(0,0,0,0.5); padding: 5px 12px; border-radius: 8px; }
+        #coinBox { color: #eab308; background: rgba(0,0,0,0.5); padding: 5px 12px; border-radius: 8px; }
 
         #powerupUI {
             position: absolute;
@@ -91,7 +91,6 @@
             text-align: center;
             padding: 30px;
             z-index: 20;
-            transition: opacity 0.3s ease;
         }
 
         h1 {
@@ -142,14 +141,13 @@
             <div id="coinBox">🪙 <span id="coins">0</span></div>
         </div>
 
-        <!-- Powerup Status Balken -->
         <div id="powerupUI">
             <div id="boardBar" class="active-bar">
-                <div style="font-size:11px; color:#10b981; margin-bottom:2px;">🛹 HOVERBOARD ACTIVE</div>
+                <div style="font-size:11px; color:#10b981; margin-bottom:2px;">🛹 HOVERBOARD</div>
                 <div class="active-bar-fill" id="boardFill"></div>
             </div>
             <div id="magnetBar" class="active-bar">
-                <div style="font-size:11px; color:#a855f7; margin-bottom:2px;">🧲 MAGNET ACTIVE</div>
+                <div style="font-size:11px; color:#a855f7; margin-bottom:2px;">🧲 MAGNEET</div>
                 <div class="active-bar-fill" id="magnetFill" style="background:#a855f7;"></div>
             </div>
         </div>
@@ -158,13 +156,14 @@
 
         <div id="menu">
             <h1 id="menuTitle">🏃‍♂️ Edem Surfer</h1>
-            <p style="color: #64748b; font-size: 18px; margin: 0;">Subway Edition</p>
+            <p id="menuSubtitle" style="color: #64748b; font-size: 18px; margin: 0;">Subway Edition</p>
+            <p id="menuText" style="color: #94a3b8; margin: 10px 0 0 0;"></p>
             
             <div class="instructions">
-                <p><b>⬅️ ➡️ of A / D:</b> Wissel direct van baan [3]</p>
-                <p><b>⬆️ of W:</b> Spring over muren & obstakels [3]</p>
-                <p><b>⬇️ of S:</b> Buk onder hangende tunnels [3]</p>
-                <p><b>SPATIEBALK:</b> Activeer Hoverboard (indien bezit)</p>
+                <p><b>⬅️ ➡️ of A / D:</b> Wissel van baan</p>
+                <p><b>⬆️ of W:</b> Spring over muren & treinen</p>
+                <p><b>⬇️ of S:</b> Buk onder blauwe borden</p>
+                <p><b>SPATIEBALK:</b> Activeer Hoverboard (extra leven!)</p>
             </div>
 
             <button class="btn" id="startBtn" onclick="startGame()">START SPEL</button>
@@ -179,13 +178,14 @@
         const coinsEl = document.getElementById("coins");
         const menu = document.getElementById("menu");
         const menuTitle = document.getElementById("menuTitle");
+        const menuSubtitle = document.getElementById("menuSubtitle");
+        const menuText = document.getElementById("menuText");
         const startBtn = document.getElementById("startBtn");
         const boardBar = document.getElementById("boardBar");
         const boardFill = document.getElementById("boardFill");
         const magnetBar = document.getElementById("magnetBar");
         const magnetFill = document.getElementById("magnetFill");
 
-        // Game state engine
         let gameActive = false;
         let score = 0;
         let coins = 0;
@@ -194,21 +194,19 @@
         let collectibles = [];
         let particles = [];
         
-        // Exacte 3 banen gecentreerd op breedte 420
-        const lanes =; 
+        // De exacte banen (links, midden, rechts) netjes uitgelijnd op 420px breedte
+        const lanes = [70, 210, 350]; 
 
-        // Speler eigenschappen (Edem) [3]
         const player = {
             lane: 1, 
             x: 210,
-            y: 500,
+            y: 490,
             radius: 18,
             jumpY: 0,
             isJumping: false,
             jumpArc: 0,
             isDucking: false,
             duckTimer: 0,
-            // Inventory & Powerups
             hasBoard: false,
             boardActive: false,
             boardTime: 0,
@@ -216,15 +214,14 @@
             magnetTime: 0
         };
 
-        // Politie Inspecteur & Hond [3]
         const police = {
             x: 210,
-            y: 580,
+            y: 570,
             targetX: 210,
             frame: 0
         };
 
-        // Knoppen detectie (Pijltjes + WASD + Spatie) [3]
+        // Knoppenbesturing (Pijltjes + WASD + Spatie)
         window.addEventListener("keydown", (e) => {
             if (!gameActive) return;
             
@@ -245,18 +242,18 @@
             if (e.key === " " && player.hasBoard && !player.boardActive) {
                 player.hasBoard = false;
                 player.boardActive = true;
-                player.boardTime = 600; // 10 seconden op 60fps
+                player.boardTime = 600; 
                 boardBar.style.display = "block";
             }
         });
 
-        function createParticle(x, y, color) {
-            for (let i = 0; i < 5; i++) {
+        function createParticles(x, y, color) {
+            for (let i = 0; i < 8; i++) {
                 particles.push({
                     x: x,
                     y: y,
-                    vx: (Math.random() - 0.5) * 4,
-                    vy: (Math.random() - 0.5) * 4,
+                    vx: (Math.random() - 0.5) * 6,
+                    vy: (Math.random() - 0.5) * 6,
                     radius: Math.random() * 3 + 1,
                     color: color,
                     alpha: 1
@@ -265,7 +262,6 @@
         }
 
         function startGame() {
-            // Volledige fabrieksreset van alle variabelen [3]
             score = 0;
             coins = 0;
             gameSpeed = 6.5;
@@ -291,19 +287,21 @@
             menu.style.display = "none";
             gameActive = true;
             
-            // Start de game loop direct [3]
             animate();
         }
 
         function gameOver(reason) {
             gameActive = false;
             menuTitle.innerText = "🚨 GEPRAKT!";
-            menu.style.display = "flex";
+            menuSubtitle.innerText = "De politie heeft je!";
+            menuText.innerHTML = `<span style="color:#ef4444; font-weight:bold;">${reason}</span><br><br><b>Eindscore:</b> ${Math.floor(score)}<br>🪙 <b>Munten:</b> ${coins}`;
             startBtn.innerText = "OPNIEUW PROBEREN";
-            document.getElementById("menuText").innerHTML = `<span style="color:#ef4444">${reason}</span><br><br><b>Eindscore:</b> ${Math.floor(score)}<br>🪙 <b>Munten verzameld:</b> ${coins}`;
+            menu.style.display = "flex";
         }
 
         function spawnManager() {
-            // Genereer obstakels (willekeurige opbouw) [3]
+            // Obstakels genereren
             if (Math.random() < 0.025 && obstacles.length < 4) {
                 let lane = Math.floor(Math.random() * 3);
+                if (!obstacles.some(o => o.lane === lane && o.y < 250)) {
+                    let rand = Math.random();
