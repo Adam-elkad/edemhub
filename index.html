@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Subway Surfers Clone</title>
+    <title>Edem Surfer</title>
     <style>
         body {
             margin: 0;
@@ -27,7 +27,7 @@
         }
 
         canvas {
-            background: #222;
+            background: #1e293b;
             display: block;
         }
 
@@ -42,6 +42,7 @@
             font-weight: bold;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
             pointer-events: none;
+            z-index: 10;
         }
 
         #scoreBox { color: #f59e0b; }
@@ -50,19 +51,20 @@
         #menu {
             position: absolute;
             inset: 0;
-            background: rgba(15, 23, 42, 0.85);
+            background: rgba(15, 23, 42, 0.9);
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             text-align: center;
             padding: 20px;
+            z-index: 20;
         }
 
         h1 {
-            font-size: 36px;
-            margin-bottom: 10px;
-            color: #ef4444;
+            font-size: 40px;
+            margin: 0 0 10px 0;
+            color: #3b82f6;
             text-transform: uppercase;
             letter-spacing: 2px;
         }
@@ -71,17 +73,18 @@
             background: #2563eb;
             color: white;
             border: none;
-            padding: 12px 30px;
+            padding: 14px 40px;
             font-size: 18px;
-            border-radius: 10px;
+            border-radius: 12px;
             cursor: pointer;
             transition: 0.2s;
             font-weight: bold;
-            margin-top: 15px;
+            margin-top: 20px;
         }
 
         .btn:hover { background: #1d4ed8; transform: scale(1.05); }
-        p { color: #94a3b8; margin: 5px 0; }
+        p { color: #94a3b8; margin: 5px 0; font-size: 15px; }
+        b { color: white; }
     </style>
 </head>
 <body>
@@ -95,8 +98,10 @@
         <canvas id="gameCanvas" width="400" height="600"></canvas>
 
         <div id="menu">
-            <h1 id="menuTitle">Subway Surfers</h1>
-            <p id="menuText">Gebruik de <b>Pijltjestoetsen</b> om te bewegen en te springen!</p>
+            <h1 id="menuTitle">🏃‍♂️ Edem Surfer</h1>
+            <p id="menuText">Gebruik de <b>Pijltjestoetsen</b> om te skaten!</p>
+            <p>⬅️ ➡️ Wissel van baan</p>
+            <p>⬆️ Spring over barrières | ⬇️ Buk onder lichten</p>
             <button class="btn" id="startBtn" onclick="startGame()">Start Spel</button>
         </div>
     </div>
@@ -105,7 +110,6 @@
         const canvas = document.getElementById("gameCanvas");
         const ctx = canvas.getContext("2d");
 
-        // UI Elementen
         const scoreEl = document.getElementById("score");
         const coinsEl = document.getElementById("coins");
         const menu = document.getElementById("menu");
@@ -113,7 +117,6 @@
         const menuText = document.getElementById("menuText");
         const startBtn = document.getElementById("startBtn");
 
-        // Game instellingen
         let gameActive = false;
         let score = 0;
         let coins = 0;
@@ -121,21 +124,21 @@
         let obstacles = [];
         let collectibles = [];
         
-        // Banen (Lanes): Links, Midden, Rechts
-        const lanes = [75, 200, 325]; 
+        // De exacte X-coördinaten voor de 3 banen
+        const lanes =; 
 
-        // Speler Object
         const player = {
-            lane: 1, // Start in de middelste baan
-            x: lanes[1],
+            lane: 1, 
+            x: 200,
             y: 500,
-            radius: 20,
+            radius: 18,
             jumpY: 0,
             isJumping: false,
-            jumpArc: 0
+            jumpArc: 0,
+            isDucking: false,
+            duckTimer: 0
         };
 
-        // Knoppen invoer luisteraar
         window.addEventListener("keydown", (e) => {
             if (!gameActive) return;
             
@@ -145,22 +148,27 @@
             if (e.key === "ArrowRight" && player.lane < 2) {
                 player.lane++;
             }
-            if (e.key === "ArrowUp" && !player.isJumping) {
+            if (e.key === "ArrowUp" && !player.isJumping && !player.isDucking) {
                 player.isJumping = true;
                 player.jumpArc = 0;
+            }
+            if (e.key === "ArrowDown" && !player.isJumping && !player.isDucking) {
+                player.isDucking = true;
+                player.duckTimer = 25; // Aantal frames bukken
             }
         });
 
         function startGame() {
-            // Reset alle variabelen
             score = 0;
             coins = 0;
-            gameSpeed = 5;
+            gameSpeed = 6;
             obstacles = [];
             collectibles = [];
             player.lane = 1;
+            player.x = lanes[1];
             player.isJumping = false;
             player.jumpY = 0;
+            player.isDucking = false;
             
             menu.style.display = "none";
             gameActive = true;
@@ -171,38 +179,53 @@
         function gameOver() {
             gameActive = false;
             menuTitle.innerText = "Game Over!";
-            menuText.innerHTML = `Je bent gepakt door de inspecteur!<br><b>Eindscore:</b> ${Math.floor(score)} | <b>Munten:</b> ${coins}`;
+            menuText.innerHTML = `De inspecteur heeft je gegrepen!<br><b>Score:</b> ${Math.floor(score)} | <b>Munten:</b> ${coins}`;
             startBtn.innerText = "Speel Opnieuw";
             menu.style.display = "flex";
         }
 
         function spawnObjects() {
-            // Spawn obstakels (treinen / barrières)
+            // Spawnen van treinen en barrières
             if (Math.random() < 0.02 && obstacles.length < 3) {
                 let randomLane = Math.floor(Math.random() * 3);
-                // Voorkom dubbele spawns direct op elkaar
-                if (!obstacles.some(o => o.lane === randomLane && o.y < 150)) {
-                    let isTrain = Math.random() > 0.4;
+                
+                if (!obstacles.some(o => o.lane === randomLane && o.y < 200)) {
+                    let typeRand = Math.random();
+                    let type = "train"; // Standaard grote trein
+                    let color = "#ef4444";
+                    let w = 46;
+                    let h = 130;
+
+                    if (typeRand < 0.35) {
+                        type = "barrier"; // Lage barrière (Springen!)
+                        color = "#f59e0b";
+                        h = 35;
+                    } else if (typeRand < 0.60) {
+                        type = "overhead"; // Hoge barrière / Licht (Bukken!)
+                        color = "#38bdf8";
+                        h = 40;
+                    }
+
                     obstacles.push({
                         lane: randomLane,
                         x: lanes[randomLane],
-                        y: -100,
-                        width: 50,
-                        height: isTrain ? 120 : 40,
-                        type: isTrain ? "train" : "barrier",
-                        color: isTrain ? "#ef4444" : "#f59e0b"
+                        y: -150,
+                        width: w,
+                        height: h,
+                        type: type,
+                        color: color
                     });
                 }
             }
 
-            // Spawn munten
-            if (Math.random() < 0.03 && collectibles.length < 5) {
+            // Spawnen van munten
+            if (Math.random() < 0.04 && collectibles.length < 6) {
                 let randomLane = Math.floor(Math.random() * 3);
                 if (!obstacles.some(o => o.lane === randomLane && o.y < 100)) {
                     collectibles.push({
                         lane: randomLane,
                         x: lanes[randomLane],
-                        y: -20,
+                        y: -30,
                         radius: 10
                     });
                 }
@@ -210,40 +233,55 @@
         }
 
         function update() {
-            score += 0.1;
+            score += 0.15;
             scoreEl.innerText = Math.floor(score);
             
-            // Verhoog de snelheid langzaam naarmate de score stijgt
-            gameSpeed = 5 + Math.floor(score / 200);
+            // Snelheid loopt heel geleidelijk op
+            gameSpeed = 6 + Math.floor(score / 300);
 
-            // Vloeiend wisselen van baan
+            // Vloeiende zijwaartse beweging naar de actieve baan
             let targetX = lanes[player.lane];
-            player.x += (targetX - player.x) * 0.25;
+            player.x += (targetX - player.x) * 0.3;
 
-            // Sprong logica (sinus boog voor vloeiende animatie)
+            // Sprong animatie regelen
             if (player.isJumping) {
-                player.jumpArc += 0.08;
-                player.jumpY = Math.sin(player.jumpArc) * 80; // Maximale spronghoogte
+                player.jumpArc += 0.07;
+                player.jumpY = Math.sin(player.jumpArc) * 95; 
                 if (player.jumpArc >= Math.PI) {
                     player.isJumping = false;
                     player.jumpY = 0;
                 }
             }
 
-            // Update obstakels
+            // Buk animatie regelen
+            if (player.isDucking) {
+                player.duckTimer--;
+                if (player.duckTimer <= 0) {
+                    player.isDucking = false;
+                }
+            }
+
+            // Check obstakels
             for (let i = obstacles.length - 1; i >= 0; i--) {
                 let o = obstacles[i];
                 o.y += gameSpeed;
 
-                // Collision detectie met speler
-                let playerActualY = player.y - player.jumpY;
-                
-                // Check of de speler op dezelfde baan staat en de hitboxes elkaar raken
-                if (Math.abs(player.x - o.x) < 30) {
-                    if (playerActualY + player.radius > o.y && playerActualY - player.radius < o.y + o.height) {
-                        // Als het een barrière is en we springen eroverheen, is er geen crash
-                        if (o.type === "barrier" && player.jumpY > 30) {
-                            // Veilig gesprongen!
+                // Hitbox logica
+                if (player.lane === o.lane) {
+                    let pTop = player.y - player.jumpY - player.radius;
+                    let pBottom = player.y - player.jumpY + player.radius;
+                    
+                    if (player.isDucking) {
+                        pTop = player.y + 5; // Kleiner doelwit bij bukken
+                    }
+
+                    // Controleer of speler verticaal overlapt met het obstakel
+                    if (pBottom > o.y && pTop < o.y + o.height) {
+                        
+                        if (o.type === "barrier" && player.jumpY > 25) {
+                            // Veilig over de lage barrière heen gesprongen
+                        } else if (o.type === "overhead" && player.isDucking) {
+                            // Veilig onder het hangende bord door gedoken
                         } else {
                             gameOver();
                             return;
@@ -251,52 +289,17 @@
                     }
                 }
 
-                // Verwijder buiten beeld
                 if (o.y > canvas.height) obstacles.splice(i, 1);
             }
 
-            // Update munten
+            // Check munten verzamelen
             for (let i = collectibles.length - 1; i >= 0; i--) {
                 let c = collectibles[i];
                 c.y += gameSpeed;
 
-                // Check coin oppakken
-                let playerActualY = player.y - player.jumpY;
-                let dist = Math.hypot(player.x - c.x, playerActualY - c.y);
+                let currentY = player.y - player.jumpY;
+                let dist = Math.hypot(player.x - c.x, currentY - c.y);
 
-                if (dist < player.radius + c.radius) {
+                if (dist < player.radius + c.radius + 5) {
                     coins++;
                     coinsEl.innerText = coins;
-                    collectibles.splice(i, 1);
-                    continue;
-                }
-
-                if (c.y > canvas.height) collectibles.splice(i, 1);
-            }
-
-            spawnObjects();
-        }
-
-        function draw() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-            // Teken de 3 banen (Lijnen op de weg)
-            ctx.strokeStyle = "#334155";
-            ctx.lineWidth = 4;
-            // Baan 1-2 scheiding
-            ctx.beginPath(); ctx.moveTo(137, 0); ctx.lineTo(137, canvas.height); ctx.stroke();
-            // Baan 2-3 scheiding
-            ctx.beginPath(); ctx.moveTo(263, 0); ctx.lineTo(263, canvas.height); ctx.stroke();
-
-            // Teken spoorbielzen voor het Subway gevoel
-            ctx.fillStyle = "#1e293b";
-            for (let y = (Math.floor(score * gameSpeed) % 40); y < canvas.height; y += 40) {
-                ctx.fillRect(20, y, 95, 4);
-                ctx.fillRect(145, y, 110, 4);
-                ctx.fillRect(285, y, 95, 4);
-            }
-
-            // Teken munten
-            ctx.fillStyle = "#eab308";
-            collectibles.forEach(c => {
-                ctx.beginPath();
