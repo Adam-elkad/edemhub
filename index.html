@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EdemGames - Retro Snake Grid</title>
+    <title>EdemGames - Poki Edition</title>
     <style>
         * {
             box-sizing: border-box;
@@ -103,11 +103,11 @@
             color: black;
         }
 
-        /* --- SCHERM 2: ZWART SPEELPLATFORM --- */
+        /* --- SCHERM 2: APART ZWART PLATFORM (POKI STYLE) --- */
         #snakePlatform {
             position: absolute;
             inset: 0;
-            background: #000000; /* Volledig zwart scherm */
+            background: #000000; /* Start direct in het zwart */
             display: none; 
             flex-direction: column;
             align-items: center;
@@ -152,21 +152,21 @@
             display: none; 
         }
 
-        /* Menu teksten midden op het zwarte scherm */
+        /* Menu teksten in het midden */
         .game-menu-container {
             display: flex;
             flex-direction: column;
-            gap: 20px;
+            gap: 25px;
             align-items: center;
             justify-content: center;
         }
 
         .menu-item-text {
-            font-size: 32px;
+            font-size: 36px;
             font-weight: 900;
             letter-spacing: 2px;
             cursor: pointer;
-            transition: transform 0.15s, color 0.15s;
+            transition: transform 0.15s;
             text-transform: uppercase;
         }
 
@@ -178,7 +178,7 @@
             transform: scale(1.1);
         }
 
-        /* 20x20 Schaakbord Canvas */
+        /* 20x20 Speelveld Canvas */
         #snakeCanvas {
             background: #1e293b;
             border: 4px solid #334155;
@@ -190,7 +190,7 @@
 </head>
 <body>
 
-    <!-- SCHERM 1: HOMEPAGE ARCADE -->
+    <!-- SCHERM 1: PORTAL HOME INTERFACE -->
     <div id="portalScreen">
         <header>
             <div class="logo">Poki<span>Hub</span></div>
@@ -207,14 +207,14 @@
         </div>
     </div>
 
-    <!-- SCHERM 2: APART ZWART PLATFORM -->
+    <!-- SCHERM 2: APART ZWART TEKST PLATFORM -->
     <div id="snakePlatform">
         <div class="top-navigation">
             <button class="backspace-btn" onclick="returnToHomePortal()">⬅ TERUG</button>
             <div class="score-counter" id="gameScoreContainer">SCORE: <span id="liveScore">0</span></div>
         </div>
 
-        <!-- Menu teksten -->
+        <!-- Menu knoppen op zwart scherm -->
         <div class="game-menu-container" id="mainGameMenu">
             <div class="menu-item-text" id="playBtn" onclick="selectMenuOption('play')">PLAY</div>
             <div class="menu-item-text" id="skinsBtn" onclick="selectMenuOption('skins')">SKINS</div>
@@ -230,7 +230,7 @@
         const canvas = document.getElementById("snakeCanvas");
         const ctx = canvas.getContext("2d");
         
-        // Exact 20x20 vakjes
+        // Exact 20x20 schaakbord grid (360px breedte / 20 = 18px per vakje)
         const gridSizeUnits = 20;
         const cellPixelDimension = 18;
 
@@ -240,18 +240,17 @@
         let vectorY = 0;
         let scoreTracker = 0;
 
-        // GA NAAR HET ZWARTE SCHERM
+        // ACTIVATIE SCHERMWISSEL NAAR ZWART
         function switchToSnakePlatform() {
             document.getElementById("portalScreen").style.display = "none";
             document.getElementById("snakePlatform").style.display = "flex";
             
-            // Toon altijd eerst het menu als je binnenkomt
+            // Altijd eerst de menu-opties tonen
             document.getElementById("mainGameMenu").style.display = "flex";
             document.getElementById("snakeCanvas").style.display = "none";
             document.getElementById("gameScoreContainer").style.display = "none";
         }
 
-        // TERUG NAAR HOMEPAGE
         function returnToHomePortal() {
             if (runtimeLoopTicker) {
                 clearInterval(runtimeLoopTicker);
@@ -263,31 +262,31 @@
             document.getElementById("portalScreen").style.display = "flex";
         }
 
-        // COORDINEER MENU OPTIES
+        // CONTROLER VOOR MENU TRRIGERS
         function selectMenuOption(option) {
             if (option === 'play') {
-                // Verberg menu, toon het bord en de score
+                // Verberg de menu teksten, open de canvas
                 document.getElementById("mainGameMenu").style.display = "none";
                 document.getElementById("snakeCanvas").style.display = "block";
                 document.getElementById("gameScoreContainer").style.display = "block";
                 
-                // Start direct met spelen
+                // Activeer de spel-engine
                 launchChessboardEngine();
             } else if (option === 'skins') {
-                alert("Skins menu openen...");
+                alert("Skins feature start binnenkort!");
             } else if (option === 'fruit') {
-                alert("Fruit instellingen openen...");
+                alert("Fruit selectie start binnenkort!");
             }
         }
 
-        // SNAKE ENGINE STARTEN
+        // SNAKE ENGINE INITIALISEREN
         function launchChessboardEngine() {
             if (runtimeLoopTicker) clearInterval(runtimeLoopTicker);
             
             scoreTracker = 0;
             document.getElementById("liveScore").innerText = scoreTracker;
             
-            // Anatomie setup: hoofd + 1 body segment
+            // Vaste begin-anatomie: hoofd op index 0, lijf op index 1
             snakeCoordinates = [
                 { x: 10, y: 10 },
                 { x: 9, y: 10 }
@@ -298,7 +297,7 @@
 
             generateRandomApplePosition();
 
-            // Toetsenbord koppelen
+            // Toetsenbord koppeling activeren
             window.onkeydown = function(e) {
                 if (e.key === "ArrowLeft" && vectorX === 0)  { vectorX = -1; vectorY = 0; }
                 if (e.key === "ArrowRight" && vectorX === 0) { vectorX = 1;  vectorY = 0; }
@@ -311,5 +310,3 @@
 
         function generateRandomApplePosition() {
             activeApple.x = Math.floor(Math.random() * gridSizeUnits);
-            activeApple.y = Math.floor(Math.random() * gridSizeUnits);
-
