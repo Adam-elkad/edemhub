@@ -115,7 +115,7 @@
         #gameWrapper {
             width: 100%;
             max-width: 600px;
-            height: 500px;
+            height: 520px;
             background: #1e293b;
             border-radius: 24px;
             display: flex;
@@ -160,19 +160,19 @@
             color: white;
         }
 
-        /* IN-GAME BUTTONS */
         .arcade-btn {
             background: #2563eb;
             color: white;
             border: none;
-            padding: 15px 30px;
-            font-size: 22px;
-            border-radius: 14px;
+            padding: 12px 24px;
+            font-size: 18px;
+            border-radius: 10px;
             cursor: pointer;
             font-weight: bold;
-            box-shadow: 0 5px 0 #1d4ed8;
+            box-shadow: 0 4px 0 #1d4ed8;
+            margin-top: 15px;
         }
-        .arcade-btn:active { transform: translateY(4px); box-shadow: 0 1px 0 #1d4ed8; }
+        .arcade-btn:active { transform: translateY(2px); box-shadow: 0 2px 0 #1d4ed8; }
     </style>
 </head>
 <body>
@@ -191,15 +191,15 @@
                     <div class="game-thumbnail">🚀</div>
                     <div class="game-info"><div class="game-title">Space Clicker</div></div>
                 </div>
-                <!-- Game 2: Simple Counter -->
-                <div class="game-card green" onclick="launchGame('counter', 'Score Counter')">
-                    <div class="game-thumbnail">🔢</div>
-                    <div class="game-info"><div class="game-title">Score Counter</div></div>
+                <!-- Game 2: Retro Snake -->
+                <div class="game-card green" onclick="launchGame('snake', 'Retro Snake')">
+                    <div class="game-thumbnail">🐍</div>
+                    <div class="game-info"><div class="game-title">Retro Snake</div></div>
                 </div>
-                <!-- Game 3: Color Changer -->
-                <div class="game-card blue" onclick="launchGame('color', 'Color Blaster')">
-                    <div class="game-thumbnail">🎨</div>
-                    <div class="game-info"><div class="game-title">Color Blaster</div></div>
+                <!-- Game 3: Geheugenspel -->
+                <div class="game-card blue" onclick="launchGame('memory', 'Geheugenspel')">
+                    <div class="game-thumbnail">🧠</div>
+                    <div class="game-info"><div class="game-title">Geheugenspel</div></div>
                 </div>
             </div>
         </div>
@@ -213,12 +213,14 @@
                 <button class="close-btn" onclick="exitTheater()">❌ SLUITEN</button>
             </div>
             <div class="game-content-area" id="gamePlayground">
-                <!-- Game UI loads dynamically here -->
+                <!-- Spellen laden hier live in -->
             </div>
         </div>
     </div>
 
     <script>
+        let snakeInterval = null;
+
         // LAUNCH GAME SWITCHER
         function launchGame(gameId, gameTitle) {
             document.getElementById('portalScreen').style.display = "none";
@@ -226,7 +228,7 @@
             document.getElementById('theaterGameTitle').innerText = gameTitle;
 
             const playground = document.getElementById('gamePlayground');
-            playground.innerHTML = ""; // Clear old game
+            playground.innerHTML = ""; // Scherm leegmaken
 
             // GAME 1: SPACE CLICKER
             if (gameId === 'clicker') {
@@ -243,49 +245,50 @@
                 };
             }
 
-            // GAME 2: SCORE COUNTER
-            if (gameId === 'counter') {
-                let count = 0;
+            // GAME 2: RETRO SNAKE
+            if (gameId === 'snake') {
                 playground.innerHTML = `
                     <div style="text-align:center;">
-                        <h1 style="font-size: 50px; margin-bottom:20px;" id="countDisplay">0</h1>
-                        <div style="display:flex; gap:15px;">
-                            <button class="arcade-btn" id="minusBtn" style="background:#ef4444; box-shadow:0 5px 0 #b91c1c;">-1</button>
-                            <button class="arcade-btn" id="plusBtn" style="background:#10b981; box-shadow:0 5px 0 #047857;">+1</button>
-                        </div>
+                        <h3 id="snakeScore" style="color:#ffcc00; margin-bottom:10px;">Score: 0</h3>
+                        <canvas id="snakeCanvas" width="300" height="300" style="border:3px solid #334155; background:#111827; display:block; border-radius:10px;"></canvas>
+                        <p style="font-size:12px; color:#94a3b8; margin-top:8px;">Gebruik de Pijltjestoetsen om te sturen!</p>
                     </div>`;
-                
-                document.getElementById('plusBtn').onclick = function() {
-                    count++;
-                    document.getElementById('countDisplay').innerText = count;
-                };
-                document.getElementById('minusBtn').onclick = function() {
-                    count--;
-                    document.getElementById('countDisplay').innerText = count;
-                };
-            }
 
-            // GAME 3: COLOR BLASTER
-            if (gameId === 'color') {
-                playground.innerHTML = `
-                    <div style="text-align:center; width:100%; height:100%; display:flex; justify-content:center; align-items:center;" id="colorContainer">
-                        <button class="arcade-btn" id="colorChangeBtn" style="background:#8b5cf6; box-shadow:0 5px 0 #6d28d9;">VERANDER KLEUR</button>
-                    </div>`;
+                const canvas = document.getElementById('snakeCanvas');
+                const ctx = canvas.getContext('2d');
+                const gridCell = 15;
                 
-                const colors = ['#ef4444', '#10b981', '#3b82f6', '#f59e0b', '#ec4899', '#8b5cf6'];
-                document.getElementById('colorChangeBtn').onclick = function() {
-                    let randomColor = colors[Math.floor(Math.random() * colors.length)];
-                    document.getElementById('colorContainer').style.background = randomColor;
-                };
-            }
-        }
+                let snake = [{x: 10, y: 10}];
+                let food = {x: 5, y: 5};
+                let dx = 1, dy = 0;
+                let currentScore = 0;
 
-        // CLOSE THEATER AND GO BACK
-        function exitTheater() {
-            document.getElementById('theaterScreen').style.display = "none";
-            document.getElementById('portalScreen').style.display = "block";
-            document.getElementById('gamePlayground').innerHTML = ""; // Wipe active game data
-        }
-    </script>
-</body>
-</html>
+                // Toetsenbord besturing koppelen
+                window.onkeydown = function(e) {
+                    if (e.key === 'ArrowLeft' && dx === 0) { dx = -1; dy = 0; }
+                    if (e.key === 'ArrowRight' && dx === 0) { dx = 1; dy = 0; }
+                    if (e.key === 'ArrowUp' && dy === 0) { dx = 0; dy = -1; }
+                    if (e.key === 'ArrowDown' && dy === 0) { dx = 0; dy = 1; }
+                };
+
+                // Game Loop voor Snake
+                snakeInterval = setInterval(() => {
+                    let head = {x: snake[0].x + dx, y: snake[0].y + dy};
+
+                    // Check muurbotsing
+                    if (head.x < 0 || head.x >= 20 || head.y < 0 || head.y >= 20) {
+                        clearInterval(snakeInterval);
+                        alert("Game Over! Eindscore: " + currentScore);
+                        exitTheater();
+                        return;
+                    }
+
+                    snake.unshift(head);
+
+                    // Check of slang voedsel eet
+                    if (head.x === food.x && head.y === food.y) {
+                        currentScore += 10;
+                        document.getElementById('snakeScore').innerText = "Score: " + currentScore;
+                        food = {
+                            x: Math.floor(Math.random() * 20),
+                            y: Math.floor(Math.random() * 20)
