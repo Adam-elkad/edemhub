@@ -24,7 +24,7 @@
             align-items: center;
         }
 
-        /* --- LAYER 1: HOME HOMEPAGE PORTAL --- */
+        /* --- SCHERM 1: HOMEPAGE PORTAL --- */
         #portalScreen {
             position: absolute;
             inset: 0;
@@ -103,12 +103,12 @@
             color: black;
         }
 
-        /* --- LAYER 2: DEDICATED SNAKE GAMEPLAY PLATFORM --- */
+        /* --- SCHERM 2: APART SNAKE SPEELPLATFORM --- */
         #snakePlatform {
             position: absolute;
             inset: 0;
             background: #0f172a;
-            display: none;
+            display: none; /* Staat standaard uit */
             flex-direction: column;
             align-items: center;
             justify-content: center;
@@ -124,7 +124,6 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            pointer-events: none;
         }
 
         .backspace-btn {
@@ -137,7 +136,6 @@
             border-radius: 12px;
             cursor: pointer;
             box-shadow: 0 4px 0 #b91c1c;
-            pointer-events: auto;
             text-transform: uppercase;
         }
 
@@ -153,7 +151,7 @@
             text-shadow: 0 2px 4px rgba(0,0,0,0.5);
         }
 
-        /* Chessboard Simulation Canvas */
+        /* Het Schaakbord Canvas */
         #snakeCanvas {
             background: #1e293b;
             border: 4px solid #334155;
@@ -173,7 +171,7 @@
 </head>
 <body>
 
-    <!-- LAYER 1: HOME HOMEPAGE PORTAL -->
+    <!-- SCHERM 1: HOMEPAGE PORTAL -->
     <div id="portalScreen">
         <header>
             <div class="logo">Poki<span>Hub</span></div>
@@ -182,7 +180,7 @@
 
         <div class="main-container">
             <div class="games-grid">
-                <!-- Trigger Core Game Tile Directly -->
+                <!-- Klik hier om direct van scherm te wisselen -->
                 <div class="game-card" onclick="switchToSnakePlatform()">
                     <div class="game-thumbnail">🐍</div>
                     <div class="game-info"><div class="game-title">Retro Snake</div></div>
@@ -191,48 +189,44 @@
         </div>
     </div>
 
-    <!-- LAYER 2: DEDICATED SNAKE GAMEPLAY PLATFORM -->
+    <!-- SCHERM 2: APART SNAKE SPEELPLATFORM -->
     <div id="snakePlatform">
         <div class="top-navigation">
-            <button class="backspace-btn" onclick="returnToHomePortal()">⬅ Back</button>
+            <button class="backspace-btn" onclick="returnToHomePortal()">⬅ Terug</button>
             <div class="score-counter">SCORE: <span id="liveScore">0</span></div>
         </div>
 
-        <!-- Dynamic Game Canvas Frame -->
+        <!-- Schaakbord veld -->
         <canvas id="snakeCanvas" width="378" height="378"></canvas>
         
-        <div class="controls-note">Use your Arrow keys to navigate</div>
+        <div class="controls-note">Gebruik de Pijltjestoetsen om te sturen</div>
     </div>
 
     <script>
-        // Core Animation Thread Trackers
         let runtimeLoopTicker = null;
         
         const canvas = document.getElementById("snakeCanvas");
         const ctx = canvas.getContext("2d");
         
-        // Exact 21x21 checkerboard tile sizing definitions (378px / 21 cells = 18px per unit cell)
+        // 21x21 schaakbord cellen (378px / 21 = 18px per vakje)
         const gridSizeUnits = 21;
         const cellPixelDimension = 18;
 
-        // Core Physics Arrays
         let snakeCoordinates = [];
         let activeApple = { x: 0, y: 0 };
         let vectorX = 1;
         let vectorY = 0;
         let scoreTracker = 0;
 
-        // PLATFORM CONTENT CONTROL SWITCHERS
+        // WISSELEN VAN SCHERM (WERKT NU ECHT)
         function switchToSnakePlatform() {
             document.getElementById("portalScreen").style.display = "none";
             document.getElementById("snakePlatform").style.display = "flex";
             
-            // Re-initialize physics properties instantly
             initializeSnakeGame();
         }
 
         function returnToHomePortal() {
-            // Terminate background ticks safely
             if (runtimeLoopTicker) {
                 clearInterval(runtimeLoopTicker);
                 runtimeLoopTicker = null;
@@ -243,26 +237,25 @@
             document.getElementById("portalScreen").style.display = "flex";
         }
 
-        // PHYSICS INITIALIZATION SUBROUTINE
+        // GAME LOGICA INITIALISEREN
         function initializeSnakeGame() {
             if (runtimeLoopTicker) clearInterval(runtimeLoopTicker);
             
             scoreTracker = 0;
             document.getElementById("liveScore").innerText = scoreTracker;
             
-            // Standard Starting Setup: Head block + trailing single joint body frame centered
+            // Startpositie: Hoofd en een klein lijfje erachter
             snakeCoordinates = [
                 { x: 10, y: 10 },
                 { x: 9, y: 10 }
             ];
             
-            // Initial velocity state (moving Right)
             vectorX = 1;
             vectorY = 0;
 
             generateRandomApplePosition();
 
-            // Bind native desktop window event handlers directly
+            // Toetsenbord koppelen
             window.onkeydown = function(e) {
                 if (e.key === "ArrowLeft" && vectorX === 0)  { vectorX = -1; vectorY = 0; }
                 if (e.key === "ArrowRight" && vectorX === 0) { vectorX = 1;  vectorY = 0; }
@@ -270,7 +263,6 @@
                 if (e.key === "ArrowDown" && vectorY === 0)  { vectorX = 0;  vectorY = 1; }
             };
 
-            // Run standard 60-120hz equivalent clock frequency loops
             runtimeLoopTicker = setInterval(processEngineFrameUpdate, 130);
         }
 
@@ -278,35 +270,48 @@
             activeApple.x = Math.floor(Math.random() * gridSizeUnits);
             activeApple.y = Math.floor(Math.random() * gridSizeUnits);
 
-            // Re-roll if apple accidentally spawns inside the snake's body
+            // Voorkom dat de appel in de slang spawnt
             if (snakeCoordinates.some(part => part.x === activeApple.x && part.y === activeApple.y)) {
                 generateRandomApplePosition();
             }
         }
 
-        // MAIN CYCLE MATRIX RUNNER
+        // MOTOR FRAME LOGICA (SNAKE BEWEGING EN COLLISION)
         function processEngineFrameUpdate() {
-            // Apply current movement vectors
+            // FIX: Maakt gebruik van de juiste array index [0] voor het hoofd
             let structuralHead = { 
                 x: snakeCoordinates[0].x + vectorX, 
                 y: snakeCoordinates[0].y + vectorY 
             };
 
-            // Out of bounds check (Immediate soft restart on impact)
+            // Check muurbotsing (Start direct opnieuw)
             if (structuralHead.x < 0 || structuralHead.x >= gridSizeUnits || structuralHead.y < 0 || structuralHead.y >= gridSizeUnits) {
                 initializeSnakeGame();
                 return;
             }
 
-            // Self-collision check (Immediate soft restart on impact)
+            // Check lichaamsbotsing (Start direct opnieuw)
             if (snakeCoordinates.some(segment => segment.x === structuralHead.x && segment.y === structuralHead.y)) {
                 initializeSnakeGame();
                 return;
             }
 
-            // Advance head location
             snakeCoordinates.unshift(structuralHead);
 
-            // Target intercept checks (Eating logic)
+            // Als de slang een appel pakt
             if (structuralHead.x === activeApple.x && structuralHead.y === activeApple.y) {
                 scoreTracker++;
+                document.getElementById("liveScore").innerText = scoreTracker;
+                generateRandomApplePosition();
+            } else {
+                // Wordt alleen kleiner als hij GEEN appel pakt (groeien effect)
+                snakeCoordinates.pop();
+            }
+
+            renderSimulationFrames();
+        }
+
+        // SCHAAKBORD EN ENTITEITEN TEKENEN
+        function renderSimulationFrames() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
