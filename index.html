@@ -3,102 +3,300 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EdemHub</title>
-
+    <title>Subway Surfers Clone</title>
     <style>
-        * {
-            box-sizing: border-box;
-        }
-
         body {
             margin: 0;
-            font-family: Arial, sans-serif;
             background: #0f172a;
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
             color: white;
         }
 
-        header {
-            padding: 25px;
-            text-align: center;
-            background: #111827;
+        #gameContainer {
+            position: relative;
+            width: 400px;
+            height: 600px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            border-radius: 20px;
+            overflow: hidden;
         }
 
-        header h1 {
-            margin: 0;
-            font-size: 40px;
-        }
-
-        header p {
-            color: #94a3b8;
-        }
-
-        .search {
+        canvas {
+            background: #222;
             display: block;
-            width: 90%;
-            max-width: 500px;
-            margin: 20px auto;
-            padding: 14px;
-            border-radius: 12px;
-            border: none;
-            font-size: 16px;
         }
 
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            padding: 30px;
-            max-width: 1000px;
-            margin: auto;
+        #ui {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            right: 20px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 20px;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+            pointer-events: none;
         }
 
-        .card {
-            background: #1e293b;
-            padding: 25px;
-            border-radius: 18px;
+        #scoreBox { color: #f59e0b; }
+        #coinBox { color: #eab308; }
+
+        #menu {
+            position: absolute;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.85);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
             text-align: center;
-            transition: 0.2s;
+            padding: 20px;
         }
 
-        .card:hover {
-            transform: translateY(-5px);
+        h1 {
+            font-size: 36px;
+            margin-bottom: 10px;
+            color: #ef4444;
+            text-transform: uppercase;
+            letter-spacing: 2px;
         }
 
-        .card h2 {
-            margin-top: 0;
-        }
-
-        .card p {
-            color: #94a3b8;
-        }
-
-        .button {
-            display: inline-block;
-            padding: 11px 20px;
-            margin-top: 10px;
+        .btn {
             background: #2563eb;
             color: white;
-            text-decoration: none;
+            border: none;
+            padding: 12px 30px;
+            font-size: 18px;
             border-radius: 10px;
+            cursor: pointer;
+            transition: 0.2s;
+            font-weight: bold;
+            margin-top: 15px;
         }
 
-        footer {
-            text-align: center;
-            padding: 30px;
-            color: #64748b;
-        }
+        .btn:hover { background: #1d4ed8; transform: scale(1.05); }
+        p { color: #94a3b8; margin: 5px 0; }
     </style>
 </head>
-
 <body>
 
-    <header>
-        <h1>🚀 EdemHub</h1>
-        <p>Mijn persoonlijke web hub</p>
+    <div id="gameContainer">
+        <div id="ui">
+            <div id="scoreBox">Score: <span id="score">0</span></div>
+            <div id="coinBox">🪙 <span id="coins">0</span></div>
+        </div>
 
-        <input
-            class="search"
-            type="text"
-            id="search"
-            placeholder="Zoek op EdemHub..."
-            onkeyup="searchCards
+        <canvas id="gameCanvas" width="400" height="600"></canvas>
+
+        <div id="menu">
+            <h1 id="menuTitle">Subway Surfers</h1>
+            <p id="menuText">Gebruik de <b>Pijltjestoetsen</b> om te bewegen en te springen!</p>
+            <button class="btn" id="startBtn" onclick="startGame()">Start Spel</button>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById("gameCanvas");
+        const ctx = canvas.getContext("2d");
+
+        // UI Elementen
+        const scoreEl = document.getElementById("score");
+        const coinsEl = document.getElementById("coins");
+        const menu = document.getElementById("menu");
+        const menuTitle = document.getElementById("menuTitle");
+        const menuText = document.getElementById("menuText");
+        const startBtn = document.getElementById("startBtn");
+
+        // Game instellingen
+        let gameActive = false;
+        let score = 0;
+        let coins = 0;
+        let gameSpeed = 5;
+        let obstacles = [];
+        let collectibles = [];
+        
+        // Banen (Lanes): Links, Midden, Rechts
+        const lanes = [75, 200, 325]; 
+
+        // Speler Object
+        const player = {
+            lane: 1, // Start in de middelste baan
+            x: lanes[1],
+            y: 500,
+            radius: 20,
+            jumpY: 0,
+            isJumping: false,
+            jumpArc: 0
+        };
+
+        // Knoppen invoer luisteraar
+        window.addEventListener("keydown", (e) => {
+            if (!gameActive) return;
+            
+            if (e.key === "ArrowLeft" && player.lane > 0) {
+                player.lane--;
+            }
+            if (e.key === "ArrowRight" && player.lane < 2) {
+                player.lane++;
+            }
+            if (e.key === "ArrowUp" && !player.isJumping) {
+                player.isJumping = true;
+                player.jumpArc = 0;
+            }
+        });
+
+        function startGame() {
+            // Reset alle variabelen
+            score = 0;
+            coins = 0;
+            gameSpeed = 5;
+            obstacles = [];
+            collectibles = [];
+            player.lane = 1;
+            player.isJumping = false;
+            player.jumpY = 0;
+            
+            menu.style.display = "none";
+            gameActive = true;
+            
+            animate();
+        }
+
+        function gameOver() {
+            gameActive = false;
+            menuTitle.innerText = "Game Over!";
+            menuText.innerHTML = `Je bent gepakt door de inspecteur!<br><b>Eindscore:</b> ${Math.floor(score)} | <b>Munten:</b> ${coins}`;
+            startBtn.innerText = "Speel Opnieuw";
+            menu.style.display = "flex";
+        }
+
+        function spawnObjects() {
+            // Spawn obstakels (treinen / barrières)
+            if (Math.random() < 0.02 && obstacles.length < 3) {
+                let randomLane = Math.floor(Math.random() * 3);
+                // Voorkom dubbele spawns direct op elkaar
+                if (!obstacles.some(o => o.lane === randomLane && o.y < 150)) {
+                    let isTrain = Math.random() > 0.4;
+                    obstacles.push({
+                        lane: randomLane,
+                        x: lanes[randomLane],
+                        y: -100,
+                        width: 50,
+                        height: isTrain ? 120 : 40,
+                        type: isTrain ? "train" : "barrier",
+                        color: isTrain ? "#ef4444" : "#f59e0b"
+                    });
+                }
+            }
+
+            // Spawn munten
+            if (Math.random() < 0.03 && collectibles.length < 5) {
+                let randomLane = Math.floor(Math.random() * 3);
+                if (!obstacles.some(o => o.lane === randomLane && o.y < 100)) {
+                    collectibles.push({
+                        lane: randomLane,
+                        x: lanes[randomLane],
+                        y: -20,
+                        radius: 10
+                    });
+                }
+            }
+        }
+
+        function update() {
+            score += 0.1;
+            scoreEl.innerText = Math.floor(score);
+            
+            // Verhoog de snelheid langzaam naarmate de score stijgt
+            gameSpeed = 5 + Math.floor(score / 200);
+
+            // Vloeiend wisselen van baan
+            let targetX = lanes[player.lane];
+            player.x += (targetX - player.x) * 0.25;
+
+            // Sprong logica (sinus boog voor vloeiende animatie)
+            if (player.isJumping) {
+                player.jumpArc += 0.08;
+                player.jumpY = Math.sin(player.jumpArc) * 80; // Maximale spronghoogte
+                if (player.jumpArc >= Math.PI) {
+                    player.isJumping = false;
+                    player.jumpY = 0;
+                }
+            }
+
+            // Update obstakels
+            for (let i = obstacles.length - 1; i >= 0; i--) {
+                let o = obstacles[i];
+                o.y += gameSpeed;
+
+                // Collision detectie met speler
+                let playerActualY = player.y - player.jumpY;
+                
+                // Check of de speler op dezelfde baan staat en de hitboxes elkaar raken
+                if (Math.abs(player.x - o.x) < 30) {
+                    if (playerActualY + player.radius > o.y && playerActualY - player.radius < o.y + o.height) {
+                        // Als het een barrière is en we springen eroverheen, is er geen crash
+                        if (o.type === "barrier" && player.jumpY > 30) {
+                            // Veilig gesprongen!
+                        } else {
+                            gameOver();
+                            return;
+                        }
+                    }
+                }
+
+                // Verwijder buiten beeld
+                if (o.y > canvas.height) obstacles.splice(i, 1);
+            }
+
+            // Update munten
+            for (let i = collectibles.length - 1; i >= 0; i--) {
+                let c = collectibles[i];
+                c.y += gameSpeed;
+
+                // Check coin oppakken
+                let playerActualY = player.y - player.jumpY;
+                let dist = Math.hypot(player.x - c.x, playerActualY - c.y);
+
+                if (dist < player.radius + c.radius) {
+                    coins++;
+                    coinsEl.innerText = coins;
+                    collectibles.splice(i, 1);
+                    continue;
+                }
+
+                if (c.y > canvas.height) collectibles.splice(i, 1);
+            }
+
+            spawnObjects();
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Teken de 3 banen (Lijnen op de weg)
+            ctx.strokeStyle = "#334155";
+            ctx.lineWidth = 4;
+            // Baan 1-2 scheiding
+            ctx.beginPath(); ctx.moveTo(137, 0); ctx.lineTo(137, canvas.height); ctx.stroke();
+            // Baan 2-3 scheiding
+            ctx.beginPath(); ctx.moveTo(263, 0); ctx.lineTo(263, canvas.height); ctx.stroke();
+
+            // Teken spoorbielzen voor het Subway gevoel
+            ctx.fillStyle = "#1e293b";
+            for (let y = (Math.floor(score * gameSpeed) % 40); y < canvas.height; y += 40) {
+                ctx.fillRect(20, y, 95, 4);
+                ctx.fillRect(145, y, 110, 4);
+                ctx.fillRect(285, y, 95, 4);
+            }
+
+            // Teken munten
+            ctx.fillStyle = "#eab308";
+            collectibles.forEach(c => {
+                ctx.beginPath();
