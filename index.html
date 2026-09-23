@@ -2,100 +2,107 @@
 <html lang="nl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Edem Surfer - Mega Extended Edition</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Edem Surfer - Ultimate Grand Pro Edition</title>
     <style>
         * {
             box-sizing: border-box;
             user-select: none;
+            -webkit-user-select: none;
+            margin: 0;
+            padding: 0;
         }
         body {
-            margin: 0;
-            background: #020617;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #030712;
+            font-family: 'Montserrat', 'Segoe UI', Helvetica, Arial, sans-serif;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
+            width: 100vw;
             overflow: hidden;
-            color: #f8fafc;
+            color: #f3f4f6;
         }
 
         #gameContainer {
             position: relative;
             width: 440px;
-            height: 680px;
-            box-shadow: 0 25px 60px rgba(0,0,0,0.95);
-            border-radius: 28px;
+            height: 720px;
+            box-shadow: 0 30px 70px rgba(0, 0, 0, 0.95);
+            border-radius: 32px;
             overflow: hidden;
-            border: 5px solid #1e293b;
-            background: #0f172a;
+            border: 6px solid #1f2937;
+            background: #0b1329;
         }
 
         canvas {
             display: block;
-            background: linear-gradient(to bottom, #020617 0%, #0f172a 40%, #1e293b 100%);
+            background: linear-gradient(to bottom, #020617 0%, #0b1528 50%, #1e293b 100%);
         }
 
+        /* Grafische HUD Elementen */
         #ui {
             position: absolute;
-            top: 20px;
+            top: 25px;
             left: 20px;
             right: 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            font-size: 18px;
             font-weight: 900;
-            text-shadow: 2px 2px 4px rgba(0,0,0,1);
+            text-shadow: 0 2px 4px rgba(0,0,0,0.8);
             pointer-events: none;
             z-index: 10;
         }
 
         .stat-box {
-            background: rgba(15, 23, 42, 0.75);
-            padding: 6px 14px;
-            border-radius: 10px;
-            border: 1px solid #334155;
+            background: rgba(17, 24, 39, 0.85);
+            padding: 8px 16px;
+            border-radius: 12px;
+            border: 1px solid #374151;
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 8px;
+            font-size: 16px;
+            letter-spacing: 0.5px;
         }
 
-        #scoreBox { color: #f59e0b; }
-        #coinBox { color: #eab308; }
+        #scoreBox { color: #f59e0b; box-shadow: inset 0 0 10px rgba(245, 158, 11, 0.2); }
+        #coinBox { color: #eab308; box-shadow: inset 0 0 10px rgba(234, 179, 8, 0.2); }
 
         #powerupUI {
             position: absolute;
-            bottom: 20px;
+            bottom: 25px;
             left: 20px;
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 12px;
             z-index: 10;
             pointer-events: none;
         }
 
         .active-bar {
-            width: 140px;
-            background: rgba(15, 23, 42, 0.85);
-            border: 1px solid #334155;
-            padding: 5px;
-            border-radius: 8px;
+            width: 150px;
+            background: rgba(17, 24, 39, 0.9);
+            border: 1px solid #4b5563;
+            padding: 6px;
+            border-radius: 10px;
             display: none;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
         }
 
         .bar-title {
             font-size: 10px;
-            font-weight: bold;
-            margin-bottom: 3px;
+            font-weight: 800;
+            margin-bottom: 4px;
             text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .active-bar-container {
             width: 100%;
             height: 8px;
-            background: #1e293b;
+            background: #1f2937;
             border-radius: 4px;
             overflow: hidden;
         }
@@ -103,193 +110,198 @@
         .active-bar-fill {
             height: 100%;
             width: 100%;
-            transition: width 0.1s linear;
+            border-radius: 4px;
         }
 
-        /* Schermen Styling */
+        /* Schermen Overlay Masterclass */
         .overlay-screen {
             position: absolute;
             inset: 0;
-            background: rgba(15, 23, 42, 0.98);
+            background: rgba(11, 17, 30, 0.98);
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             text-align: center;
-            padding: 30px;
+            padding: 35px;
             z-index: 20;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
         }
 
         h1 {
-            font-size: 44px;
+            font-size: 46px;
             margin: 0 0 5px 0;
             color: #3b82f6;
             text-transform: uppercase;
-            letter-spacing: 3px;
-            text-shadow: 0 4px 15px rgba(59, 130, 246, 0.5);
+            letter-spacing: 4px;
+            text-shadow: 0 0 20px rgba(59, 130, 246, 0.6);
+        }
+
+        .subtitle {
+            color: #6b7280;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 20px;
+            font-weight: 700;
         }
 
         .btn {
-            background: #2563eb;
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
             color: #ffffff;
             border: none;
-            padding: 16px 40px;
-            font-size: 20px;
-            border-radius: 14px;
+            padding: 16px 44px;
+            font-size: 18px;
+            border-radius: 16px;
             cursor: pointer;
-            transition: all 0.2s ease;
-            font-weight: bold;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            font-weight: 800;
             margin-top: 15px;
             box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4);
             text-transform: uppercase;
+            width: 85%;
+            max-width: 290px;
+            letter-spacing: 1px;
+            border: 1px solid rgba(255,255,255,0.1);
         }
 
         .btn:hover { 
-            background: #1d4ed8; 
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(37, 99, 235, 0.6);
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(37, 99, 235, 0.6);
+        }
+
+        .btn:active {
+            transform: translateY(-1px);
         }
 
         .btn-secondary {
-            background: #475569;
-            box-shadow: 0 6px 15px rgba(71, 85, 105, 0.4);
-            font-size: 16px;
-            padding: 12px 30px;
+            background: linear-gradient(135deg, #4b5563 0%, #374151 100%);
+            box-shadow: 0 6px 15px rgba(75, 85, 99, 0.4);
+            font-size: 15px;
+            padding: 14px 35px;
+            border: 1px solid rgba(255,255,255,0.05);
         }
         .btn-secondary:hover {
-            background: #334155;
-            box-shadow: 0 8px 20px rgba(71, 85, 105, 0.6);
+            background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+            box-shadow: 0 8px 20px rgba(75, 85, 99, 0.6);
         }
 
         .instructions {
-            background: rgba(30, 41, 59, 0.6);
-            border: 1px solid #475569;
-            padding: 12px;
-            border-radius: 14px;
+            background: rgba(17, 24, 39, 0.6);
+            border: 1px solid #374151;
+            padding: 16px;
+            border-radius: 18px;
             margin-top: 15px;
             width: 100%;
-            max-width: 340px;
+            max-width: 350px;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.4);
         }
 
-        .instructions p { color: #94a3b8; margin: 4px 0; font-size: 13px; text-align: left; }
+        .instructions p { color: #9ca3af; margin: 6px 0; font-size: 13px; text-align: left; display: flex; justify-content: space-between; }
         .instructions b { color: #ffffff; }
 
-        /* Shop Grid View */
+        /* Shop Elementen */
         .shop-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
+            gap: 14px;
             width: 100%;
-            max-width: 360px;
-            margin: 15px 0;
+            max-width: 370px;
+            margin: 20px 0;
+            overflow-y: auto;
+            max-height: 320px;
+            padding: 5px;
         }
 
         .shop-item {
-            background: #1e293b;
-            border: 2px solid #334155;
-            border-radius: 12px;
-            padding: 10px;
+            background: #1f2937;
+            border: 2px solid #4b5563;
+            border-radius: 16px;
+            padding: 14px;
             cursor: pointer;
-            transition: 0.2s;
+            transition: all 0.2s ease;
             position: relative;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+
+        .shop-item:hover {
+            transform: scale(1.03);
+            border-color: #6b7280;
         }
 
         .shop-item.active {
             border-color: #10b981;
             background: #064e3b;
+            box-shadow: 0 0 15px rgba(16, 185, 129, 0.3);
         }
 
-        .shop-item h3 { margin: 0 0 4px 0; font-size: 14px; }
-        .shop-item p { margin: 0; font-size: 12px; color: #eab308; font-weight: bold; }
+        .shop-item h3 { margin: 0 0 4px 0; font-size: 14px; font-weight: 800; letter-spacing: 0.5px; }
+        .shop-item p { margin: 0; font-size: 12px; color: #eab308; font-weight: 800; }
+
+        .skin-preview-dot {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            margin: 8px auto 0 auto;
+            border: 2px solid #ffffff;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+        }
 
         #shopScreen { display: none; }
+        #statsScreen { display: none; }
+
+        /* Custom Scrollbar voor de Shop Grid */
+        .shop-grid::-webkit-scrollbar {
+            width: 6px;
+        }
+        .shop-grid::-webkit-scrollbar-track {
+            background: rgba(0,0,0,0.1);
+            border-radius: 10px;
+        }
+        .shop-grid::-webkit-scrollbar-thumb {
+            background: #4b5563;
+            border-radius: 10px;
+        }
     </style>
 </head>
 <body>
 
     <div id="gameContainer">
-        <!-- HUD Interface -->
+        <!-- HUD overlay -->
         <div id="ui">
             <div class="stat-box" id="scoreBox">MULT: <span id="mult">1x</span> | <span id="score">0</span></div>
             <div class="stat-box" id="coinBox">🪙 <span id="coins">0</span></div>
         </div>
 
-        <!-- Live Powerup Status overzichten -->
+        <!-- Actieve timers voor powerups -->
         <div id="powerupUI">
             <div id="boardBar" class="active-bar">
                 <div class="bar-title" style="color:#10b981;">🛹 Hoverboard</div>
                 <div class="active-bar-container"><div class="active-bar-fill" id="boardFill" style="background:#10b981;"></div></div>
             </div>
             <div id="magnetBar" class="active-bar">
-                <div class="bar-title" style="color:#a855f7;">🧲 Magneet</div>
+                <div class="bar-title" style="color:#a855f7;">🧲 Muntenmagneet</div>
                 <div class="active-bar-container"><div class="active-bar-fill" id="magnetFill" style="background:#a855f7;"></div></div>
             </div>
             <div id="jetpackBar" class="active-bar">
-                <div class="bar-title" style="color:#06b6d4;">🚀 Jetpack</div>
+                <div class="bar-title" style="color:#06b6d4;">🚀 Jetpack Flight</div>
                 <div class="active-bar-container"><div class="active-bar-fill" id="jetpackFill" style="background:#06b6d4;"></div></div>
             </div>
+            <div id="multiplierBar" class="active-bar">
+                <div class="bar-title" style="color:#3b82f6;">⭐ 2X Multiplier</div>
+                <div class="active-bar-container"><div class="active-bar-fill" id="multiplierFill" style="background:#3b82f6;"></div></div>
+            </div>
         </div>
 
-        <!-- Game Canvas Rendering Window -->
-        <canvas id="gameCanvas" width="440" height="680"></canvas>
+        <!-- Render window -->
+        <canvas id="gameCanvas" width="440" height="720"></canvas>
 
-        <!-- Menu Hoofdscherm -->
+        <!-- Startmenu -->
         <div id="mainMenu" class="overlay-screen">
-            <h1>🏃‍♂️ Edem Surfer</h1>
-            <p style="color: #64748b; font-size: 16px; margin: 0 0 10px 0;">Official Extended Edition</p>
-            <p id="highScoreText" style="color: #f59e0b; margin: 5px 0; font-weight: bold;">Highscore: 0</p>
+            <h1>Edem Surfer</h1>
+            <div class="subtitle">Ultimate Pro Edition</div>
+            <p id="highScoreText" style="color: #f59e0b; font-weight: 800; font-size: 16px; letter-spacing: 0.5px;">HIGHSCORE: 0</p>
             
             <div class="instructions">
-                <p><b>⬅️ ➡️ of A / D:</b> Wissel direct van baan</p>
-                <p><b>⬆️ of W:</b> Spring over muren & treinen</p>
-                <p><b>⬇️ of S:</b> Buk onder stellages door</p>
-                <p><b>SPATIEBALK:</b> Activeer Hoverboard (Extra Leven!)</p>
-            </div>
-
-            <button class="btn" onclick="triggerStartGame()">START SPEL</button>
-            <button class="btn btn-secondary" onclick="openShop()">SKIN SHOP 👕</button>
-        </div>
-
-        <!-- Shop Venster -->
-        <div id="shopScreen" class="overlay-screen">
-            <h2 style="margin: 0; color:#eab308;">👕 Edem's Wardrobe</h2>
-            <p style="color: #94a3b8; margin: 4px 0;">Jouw munten: 🪙 <span id="shopCoins">0</span></p>
-            
-            <div class="shop-grid" id="shopGrid">
-                <!-- Dynamisch geladen via JS -->
-            </div>
-
-            <button class="btn btn-secondary" onclick="closeShop()">TERUG NAAR MENU</button>
-        </div>
-
-        <!-- Game Over Venster -->
-        <div id="gameOverScreen" class="overlay-screen" style="display: none;">
-            <h1 style="color: #ef4444;">🚨 SNAGGERED!</h1>
-            <p style="color: #94a3b8; margin: 0 0 15px 0;" id="failReason">Gepakt door de inspecteur!</p>
-            
-            <div class="instructions" style="text-align: center;">
-                <p style="text-align: center; font-size: 16px;"><b>Eindscore:</b> <span id="finalScore" style="color:#f59e0b">0</span></p>
-                <p style="text-align: center; font-size: 16px;"><b>Verzamelde Munten:</b> 🪙 <span id="finalCoins" style="color:#eab308">0</span></p>
-            </div>
-
-            <button class="btn" onclick="triggerStartGame()">SPEEL OPNIEUW</button>
-            <button class="btn btn-secondary" onclick="backToMenu()">HOOFDMENU</button>
-        </div>
-    </div>
-
-    <script>
-        // Core Canvas & Rendering Setup
-        const canvas = document.getElementById("gameCanvas");
-        const ctx = canvas.getContext("2d");
-
-        // UI Binding Handles
-        const scoreEl = document.getElementById("score");
-        const coinsEl = document.getElementById("coins");
-        const multEl = document.getElementById("mult");
-        const mainMenu = document.getElementById("mainMenu");
-        const shopScreen = document.getElementById("shopScreen");
-        const gameOverScreen = document.getElementById("gameOverScreen");
-        
-        // Element caching voor bars
-        const boardBar = document.getElementById("boardBar");
-        const boardFill = document.getElementById("boardFill");
