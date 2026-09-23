@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EdemGames - Poki Theater Edition</title>
+    <title>EdemGames - Poki Style</title>
     <style>
         * {
             box-sizing: border-box;
@@ -14,12 +14,11 @@
         }
 
         body {
-            background: #5c3bc4; /* De iconische paarse Poki kleur */
+            background: #5c3bc4;
             color: white;
             overflow-x: hidden;
         }
 
-        /* Top Bar */
         header {
             background: #ffffff;
             padding: 15px 30px;
@@ -38,7 +37,6 @@
             color: #5c3bc4;
             text-transform: uppercase;
             letter-spacing: -1px;
-            cursor: pointer;
         }
 
         .logo span {
@@ -49,38 +47,10 @@
             margin-left: 4px;
         }
 
-        /* Categorie Knoppen */
-        .categories {
-            display: flex;
-            justify-content: center;
-            gap: 12px;
-            padding: 25px;
-        }
-
-        .category-btn {
-            background: rgba(255, 255, 255, 0.2);
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 25px;
-            cursor: pointer;
-            font-weight: bold;
-            font-size: 15px;
-            transition: 0.2s;
-        }
-
-        .category-btn.active, .category-btn:hover {
-            background: #ffcc00;
-            color: black;
-            transform: scale(1.05);
-        }
-
-        /* Games Grid Layout */
         .main-container {
             max-width: 1200px;
             margin: 0 auto;
-            padding: 20px;
-            transition: opacity 0.3s;
+            padding: 40px 20px;
         }
 
         .games-grid {
@@ -104,11 +74,9 @@
             justify-content: center;
         }
 
-        /* Poki kleurenkaarten */
         .game-card.pink { background: #ff5376; }
         .game-card.green { background: #2bd980; }
         .game-card.blue { background: #2cc9f3; }
-        .game-card.orange { background: #ff9100; }
 
         .game-card:hover {
             transform: translateY(-4px);
@@ -131,62 +99,38 @@
             color: black;
         }
 
-        /* --- POKI BLACK THEATER OVERLAY (HET ZWARTE SCHERM) --- */
+        /* SCREEN 2: BLACK THEATER MODUS */
         #theaterScreen {
             position: fixed;
             inset: 0;
-            background: #000000; /* Pikzwart scherm zoals Poki */
+            background: #000000;
             z-index: 1000;
             display: none;
             flex-direction: column;
             justify-content: center;
             align-items: center;
+            padding: 20px;
         }
 
-        /* Laadscherm animatie */
-        #loaderArea {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .poki-spinner {
-            width: 60px;
-            height: 60px;
-            border: 6px solid #333;
-            border-top: 6px solid #ffcc00;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin-bottom: 20px;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        /* De actieve game container */
         #gameWrapper {
             width: 100%;
-            max-width: 800px;
-            height: 80vh;
-            background: #111827;
+            max-width: 600px;
+            height: 500px;
+            background: #1e293b;
             border-radius: 24px;
-            display: none;
+            display: flex;
             flex-direction: column;
             overflow: hidden;
-            box-shadow: 0 0 40px rgba(255,255,255,0.05);
-            border: 2px solid #222;
+            border: 2px solid #334155;
         }
 
         .theater-header {
-            background: #111;
+            background: #111827;
             padding: 15px 25px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 1px solid #222;
+            border-bottom: 1px solid #334155;
         }
 
         .theater-title {
@@ -199,30 +143,29 @@
             background: #ff5376;
             color: white;
             border: none;
-            padding: 10px 22px;
-            border-radius: 12px;
+            padding: 8px 18px;
+            border-radius: 10px;
             font-weight: 800;
             cursor: pointer;
-            transition: 0.2s;
         }
 
-        .close-btn:hover { background: #e12d53; transform: scale(1.05); }
+        .close-btn:hover { background: #e12d53; }
 
-        .game-canvas-area {
+        .game-content-area {
             flex: 1;
             display: flex;
             justify-content: center;
             align-items: center;
-            background: #090d16;
-            position: relative;
+            background: #0f172a;
+            color: white;
         }
 
-        /* Interne arcade knop styling */
+        /* IN-GAME BUTTONS */
         .arcade-btn {
             background: #2563eb;
             color: white;
             border: none;
-            padding: 16px 32px;
+            padding: 15px 30px;
             font-size: 22px;
             border-radius: 14px;
             cursor: pointer;
@@ -234,81 +177,115 @@
 </head>
 <body>
 
-    <!-- PORTAL HOOFDSCHERM -->
+    <!-- SCREEN 1: PORTAL HOMEPAGE -->
     <div id="portalScreen">
         <header>
             <div class="logo">Poki<span>Hub</span></div>
-            <div style="font-weight: bold; color: #5c3bc4; background: #ffcc00; padding: 5px 12px; border-radius: 15px;">Edem's Arcade</div>
+            <div style="font-weight: bold; color: black; background: #ffcc00; padding: 5px 12px; border-radius: 15px;">Edem's Arcade</div>
         </header>
-
-        <div class="categories">
-            <button class="category-btn active">🕹️ Alle Spellen</button>
-        </div>
 
         <div class="main-container">
             <div class="games-grid">
                 <!-- Game 1: Space Clicker -->
-                <div class="game-card pink" onclick="openTheater('clicker', 'Space Clicker')">
+                <div class="game-card pink" onclick="launchGame('clicker', 'Space Clicker')">
                     <div class="game-thumbnail">🚀</div>
                     <div class="game-info"><div class="game-title">Space Clicker</div></div>
                 </div>
-                <!-- Game 2: Retro Snake -->
-                <div class="game-card green" onclick="openTheater('snake', 'Retro Snake')">
-                    <div class="game-thumbnail">🐍</div>
-                    <div class="game-info"><div class="game-title">Retro Snake</div></div>
+                <!-- Game 2: Simple Counter -->
+                <div class="game-card green" onclick="launchGame('counter', 'Score Counter')">
+                    <div class="game-thumbnail">🔢</div>
+                    <div class="game-info"><div class="game-title">Score Counter</div></div>
                 </div>
-                <!-- Game 3: Geheugenspel -->
-                <div class="game-card blue" onclick="openTheater('memory', 'Geheugenspel')">
-                    <div class="game-thumbnail">🧠</div>
-                    <div class="game-info"><div class="game-title">Geheugenspel</div></div>
-                </div>
-                <!-- Game 4: Reactietest -->
-                <div class="game-card orange" onclick="openTheater('reaction', 'Reactietest')">
-                    <div class="game-thumbnail">⚡</div>
-                    <div class="game-info"><div class="game-title">Reactietest</div></div>
+                <!-- Game 3: Color Changer -->
+                <div class="game-card blue" onclick="launchGame('color', 'Color Blaster')">
+                    <div class="game-thumbnail">🎨</div>
+                    <div class="game-info"><div class="game-title">Color Blaster</div></div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- HET POKI ZWARTE BIOSCOOPSCHERM OVERLAY -->
+    <!-- SCREEN 2: POKI THEATER OVERLAY -->
     <div id="theaterScreen">
-        <!-- Nep Poki laadeffect -->
-        <div id="loaderArea">
-            <div class="poki-spinner"></div>
-            <h3 style="letter-spacing: 1px; color: #ffcc00;" id="loadingText">SPEL LADEN...</h3>
-        </div>
-
-        <!-- De actieve game container -->
         <div id="gameWrapper">
             <div class="theater-header">
                 <div class="theater-title" id="theaterGameTitle">Game</div>
-                <button class="close-btn" onclick="closeTheater()">❌ SLUITEN</button>
+                <button class="close-btn" onclick="exitTheater()">❌ SLUITEN</button>
             </div>
-            <div class="game-canvas-area" id="canvasContainer">
-                <!-- Hier wordt de gekozen game direct ingeladen via JS -->
+            <div class="game-content-area" id="gamePlayground">
+                <!-- Game UI loads dynamically here -->
             </div>
         </div>
     </div>
 
     <script>
-        // --- THEATER NAVIGATIE MOTOR ---
-        function openTheater(gameId, gameTitle) {
-            // Verberg de portal, toon het zwarte scherm en de loader
-            document.getElementById('portalScreen').style.opacity = "0.3";
+        // LAUNCH GAME SWITCHER
+        function launchGame(gameId, gameTitle) {
+            document.getElementById('portalScreen').style.display = "none";
             document.getElementById('theaterScreen').style.display = "flex";
-            document.getElementById('loaderArea').style.display = "flex";
-            document.getElementById('gameWrapper').style.display = "none";
-            document.getElementById('loadingText').innerText = gameTitle.toUpperCase() + " LADEN...";
+            document.getElementById('theaterGameTitle').innerText = gameTitle;
 
-            // Na 1 seconde laden start de game in het donkere theater, net als op Poki!
-            setTimeout(() => {
-                document.getElementById('loaderArea').style.display = "none";
-                document.getElementById('gameWrapper').style.display = "flex";
-                document.getElementById('theaterGameTitle').innerText = gameTitle;
-                buildMiniGame(gameId);
-            }, 1000);
+            const playground = document.getElementById('gamePlayground');
+            playground.innerHTML = ""; // Clear old game
+
+            // GAME 1: SPACE CLICKER
+            if (gameId === 'clicker') {
+                let score = 0;
+                playground.innerHTML = `
+                    <div style="text-align:center;">
+                        <h1 style="font-size: 40px; color:#ffcc00; margin-bottom:20px;" id="scoreDisplay">🚀 0 Scraps</h1>
+                        <button class="arcade-btn" id="clickActionBtn">KLIK HIER</button>
+                    </div>`;
+                
+                document.getElementById('clickActionBtn').onclick = function() {
+                    score++;
+                    document.getElementById('scoreDisplay').innerText = `🚀 ${score} Scraps`;
+                };
+            }
+
+            // GAME 2: SCORE COUNTER
+            if (gameId === 'counter') {
+                let count = 0;
+                playground.innerHTML = `
+                    <div style="text-align:center;">
+                        <h1 style="font-size: 50px; margin-bottom:20px;" id="countDisplay">0</h1>
+                        <div style="display:flex; gap:15px;">
+                            <button class="arcade-btn" id="minusBtn" style="background:#ef4444; box-shadow:0 5px 0 #b91c1c;">-1</button>
+                            <button class="arcade-btn" id="plusBtn" style="background:#10b981; box-shadow:0 5px 0 #047857;">+1</button>
+                        </div>
+                    </div>`;
+                
+                document.getElementById('plusBtn').onclick = function() {
+                    count++;
+                    document.getElementById('countDisplay').innerText = count;
+                };
+                document.getElementById('minusBtn').onclick = function() {
+                    count--;
+                    document.getElementById('countDisplay').innerText = count;
+                };
+            }
+
+            // GAME 3: COLOR BLASTER
+            if (gameId === 'color') {
+                playground.innerHTML = `
+                    <div style="text-align:center; width:100%; height:100%; display:flex; justify-content:center; align-items:center;" id="colorContainer">
+                        <button class="arcade-btn" id="colorChangeBtn" style="background:#8b5cf6; box-shadow:0 5px 0 #6d28d9;">VERANDER KLEUR</button>
+                    </div>`;
+                
+                const colors = ['#ef4444', '#10b981', '#3b82f6', '#f59e0b', '#ec4899', '#8b5cf6'];
+                document.getElementById('colorChangeBtn').onclick = function() {
+                    let randomColor = colors[Math.floor(Math.random() * colors.length)];
+                    document.getElementById('colorContainer').style.background = randomColor;
+                };
+            }
         }
 
-        function closeTheater() {
+        // CLOSE THEATER AND GO BACK
+        function exitTheater() {
             document.getElementById('theaterScreen').style.display = "none";
+            document.getElementById('portalScreen').style.display = "block";
+            document.getElementById('gamePlayground').innerHTML = ""; // Wipe active game data
+        }
+    </script>
+</body>
+</html>
