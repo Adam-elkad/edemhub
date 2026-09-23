@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>EdemTok - TikTok Edition</title>
+    <title>EdemTok - Real Video Edition</title>
     <style>
         * {
             box-sizing: border-box;
@@ -24,7 +24,7 @@
             overflow: hidden;
         }
 
-        /* TIKTOK APP CONTAINER (MOBIEL FORMAAT) */
+        /* TIKTOK APP CONTAINER */
         #appContainer {
             width: 100%;
             max-width: 450px;
@@ -36,16 +36,16 @@
             flex-direction: column;
         }
 
-        /* ONEINDIGE VIDEO FEED (SCROLL SNAP) */
+        /* VIDEO FEED (SCROLL SNAP) */
         .video-feed {
             flex: 1;
             overflow-y: scroll;
             scroll-snap-type: y mandatory;
-            scrollbar-width: none; /* Verberg scrollbar Firefox */
+            scrollbar-width: none;
         }
 
         .video-feed::-webkit-scrollbar {
-            display: none; /* Verberg scrollbar Chrome/Safari */
+            display: none;
         }
 
         /* APART VIDEO CONTAINER SEGMENT */
@@ -58,24 +58,21 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            background: #111;
+            background: #000;
         }
 
-        /* INTERNE VISUELE VIDEO SIMULATIE (DYNAMISCHE GRADIENT EN EMOJI'S) */
-        .video-placeholder {
+        /* ECHTE VIDEOTAG STYLING */
+        video {
             width: 100%;
             height: 100%;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            font-size: 80px;
+            object-fit: cover; /* Zorgt dat de video het hele scherm vult, net als TikTok */
             position: absolute;
             inset: 0;
             z-index: 1;
+            cursor: pointer;
         }
 
-        /* RECHTER ACTIEBALK (LIKES, COMMENTS, SHARES) */
+        /* RECHTER ACTIEBALK */
         .side-bar {
             position: absolute;
             right: 15px;
@@ -111,10 +108,11 @@
             margin-bottom: 5px;
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255,255,255,0.1);
+            color: white;
         }
 
         .action-icon.liked {
-            color: #ff0050; /* TikTok Rood */
+            color: #ff0050;
             background: rgba(255, 0, 80, 0.2);
             border-color: #ff0050;
         }
@@ -125,7 +123,7 @@
             color: #ffffff;
         }
 
-        /* ONDERSTE TEKSTBALK (CREATOR INFO & DESCRIPTION) */
+        /* ONDERSTE TEKSTBALK (CREATOR INFO) */
         .bottom-info {
             position: absolute;
             left: 20px;
@@ -136,12 +134,14 @@
             flex-direction: column;
             gap: 8px;
             text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+            pointer-events: none; /* Zorgt dat je door de tekst heen kunt klikken om de video te pauzeren */
         }
 
         .creator-row {
             display: flex;
             align-items: center;
             gap: 10px;
+            pointer-events: auto;
         }
 
         .creator-name {
@@ -174,14 +174,14 @@
 
         .music-track {
             font-size: 13px;
-            color: #2bd980; /* Neon groen voor muziek */
+            color: #2bd980;
             display: flex;
             align-items: center;
             gap: 5px;
             font-weight: 600;
         }
 
-        /* --- POP-UP REACTIES SCHERM --- */
+        /* POP-UP REACTIES SCHERM */
         #commentOverlay {
             position: absolute;
             bottom: 0;
@@ -233,6 +233,7 @@
             justify-content: center;
             align-items: center;
             font-size: 16px;
+            color: black;
         }
 
         .comment-body h5 { font-weight: 700; color: #aaa; margin-bottom: 2px; }
@@ -261,7 +262,6 @@
         .nav-item.active { color: #ffffff; }
         .nav-icon { font-size: 20px; margin-bottom: 2px; }
 
-        /* Special TikTok Plus Center Button */
         .nav-plus-btn {
             width: 45px;
             height: 30px;
@@ -274,7 +274,7 @@
             color: black;
             font-size: 18px;
             font-weight: 900;
-            box-shadow: -3px 0 #00f2fe, 3px 0 #fe0979; /* De blauw/roze TikTok gloed */
+            box-shadow: -3px 0 #00f2fe, 3px 0 #fe0979;
         }
     </style>
 </head>
@@ -283,17 +283,17 @@
     <div id="appContainer">
         <!-- SCROLLBARE VIDEO FEED -->
         <div class="video-feed" id="mainFeed" onscroll="handleVideoScroll()">
-            <!-- Video's worden hier automatisch geladen via JS -->
+            <!-- Video's worden hier geladen via JavaScript -->
         </div>
 
-        /* --- POP-UP REACTIES SCHERM --- */
+        <!-- POP-UP REACTIES SCHERM -->
         <div id="commentOverlay">
             <div class="comment-header">
                 <div class="comment-title">Reacties</div>
                 <div class="close-comments" onclick="closeComments()">✕</div>
             </div>
             <div class="comment-list" id="activeCommentsBox">
-                <!-- Reacties laden hier dynamically -->
+                <!-- Reacties laden hier -->
             </div>
         </div>
 
@@ -308,15 +308,18 @@
     </div>
 
     <script>
-        // FEED DATABASE MET DYNAMISCHE TIKTOK CONTENT
+        // FEED DATABASE MET SPEELBARE VIDEO LINKS
         const tiktokVideos = [
             {
-                id: 1, creator: "Edem_Pro", desc: "Mijn gloednieuwe web app is eINDELIJK af! Check de link in bio 🚀🔥 #coding #fy #viral", music: "Origineel geluid - Edem", emoji: "💻", bg: "linear-gradient(135deg, #1e3a8a, #0f172a)",
-                likes: 1420, comments: [ {user: "Sander_99", avatar: "😎", text: "Ziet er echt heel strak uit bro!"}, {user: "Lisaaa", avatar: "✨", text: "Werkt dit ook op mobiel??"} ]
+                id: 1, creator: "Edem_AI", desc: "AI-gegenereerde droomwereld is bizar mooi geworden... 🌌✨ #ai #artificialintelligence #creative #viral", music: "Aesthetic Sound - Artificial Art",
+                videoUrl: "https://camelot.ai",
+                likes: 1240, comments: [ {user: "Sander_99", avatar: "😎", text: "Met welke AI-tool is dit gemaakt bro?!"}, {user: "Lisaaa", avatar: "✨", text: "Echt hypnotiserend om naar te kijken."} ]
             },
             {
-                id: 2, creator: "Roblox_King", desc: "Wanneer je eindelijk genoeg Robux hebt voor die limited skin!! 🤑💎 #roblox #tycoon #gaming", music: "Roblox Phonk Remix", emoji: "🎮", bg: "linear-gradient(135deg, #b91c1c, #450a0a)",
-                likes: 8530, comments: [ {user: "Edem_Pro", avatar: "🚀", text: "Haha herkenbaar! Vette video."}, {user: "Guest_1337", avatar: "🤖", text: "Geef mij aub gratis robux haha"} ]
+                id: 2, creator: "Cyber_Wave", desc: "Live vanuit de neon-stad in 2099 🚀👾 #cyberpunk #future #scifi #aesthetic", music: "Synthwave Night Drive",
+                videoUrl: "https://camelot.ai",
+                likes: 4890, comments: [ {user: "Edem_AI", avatar: "🚀", text: "Dit sfeertje is echt geweldig."}, {user: "NeonRider", avatar: "🏍️", text: "Ik wil hier nu naartoe!"} ]
             },
             {
-                id: 3, creator: "Chef_Tok", desc: "De ultieme midnight snack maken in minder dan 2 minuten! 🧀🍟 #cooking #food #snack", music: "Chill Vibes Lofi", emoji: "🍔", bg: "linear-gradient(135deg, #ca8a04, #451a03)",
+                id: 3, creator: "Natuur_Loops", desc: "Even ontspannen na een lange dag coderen 🌊🌲 #nature #relax #lofi #calm", music: "Relaxing Ocean Waves",
+                videoUrl: "https://camelot.ai",
