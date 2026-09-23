@@ -107,7 +107,7 @@
         #snakePlatform {
             position: absolute;
             inset: 0;
-            background: #000000; /* Turns completely black as requested */
+            background: #000000; 
             display: none; 
             flex-direction: column;
             align-items: center;
@@ -144,6 +144,14 @@
             box-shadow: 0 2px 0 #b91c1c;
         }
 
+        .score-counter {
+            font-size: 22px;
+            font-weight: 900;
+            color: #ffcc00;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+            display: none; /* Only shows during active play */
+        }
+
         /* Menu layout text items inside black screen */
         .game-menu-container {
             display: flex;
@@ -170,6 +178,15 @@
             transform: scale(1.1);
             filter: brightness(1.2);
         }
+
+        /* Chessboard Simulation Canvas Frame */
+        #snakeCanvas {
+            background: #1e293b;
+            border: 4px solid #334155;
+            border-radius: 16px;
+            box-shadow: 0 15px 35px rgba(255,255,255,0.05);
+            display: none; /* Spawns dynamically on click */
+        }
     </style>
 </head>
 <body>
@@ -195,38 +212,100 @@
     <div id="snakePlatform">
         <div class="top-navigation">
             <button class="backspace-btn" onclick="returnToHomePortal()">⬅ TERUG</button>
+            <div class="score-counter" id="gameScoreContainer">SCORE: <span id="liveScore">0</span></div>
         </div>
 
-        <!-- The menu text blocks built right inside the black frame -->
-        <div class="game-menu-container">
+        <!-- The menu text blocks -->
+        <div class="game-menu-container" id="mainGameMenu">
             <div class="menu-item-text" id="playBtn" onclick="selectMenuOption('play')">PLAY</div>
             <div class="menu-item-text" id="skinsBtn" onclick="selectMenuOption('skins')">SKINS</div>
             <div class="menu-item-text" id="fruitBtn" onclick="selectMenuOption('fruit')">FRUIT</div>
         </div>
+
+        <!-- 20x20 Chessboard Board Canvas Grid -->
+        <canvas id="snakeCanvas" width="360" height="378"></canvas>
     </div>
 
     <script>
-        // INTERACTIVE TRANSITION ENGINES
+        let runtimeLoopTicker = null;
+        const canvas = document.getElementById("snakeCanvas");
+        const ctx = canvas.getContext("2d");
+        
+        // Exact 20x20 chessboard layout definitions (360px width / 20 grid units = 18px per square)
+        const gridSizeUnits = 20;
+        const cellPixelDimension = 18;
+
+        let snakeCoordinates = [];
+        let activeApple = { x: 0, y: 0 };
+        let vectorX = 1;
+        let vectorY = 0;
+        let scoreTracker = 0;
+
         function switchToSnakePlatform() {
             document.getElementById("portalScreen").style.display = "none";
             document.getElementById("snakePlatform").style.display = "flex";
+            
+            // Bring menu back upon opening the screen
+            document.getElementById("mainGameMenu").style.display = "flex";
+            document.getElementById("snakeCanvas").style.display = "none";
+            document.getElementById("gameScoreContainer").style.display = "none";
         }
 
         function returnToHomePortal() {
+            if (runtimeLoopTicker) {
+                clearInterval(runtimeLoopTicker);
+                runtimeLoopTicker = null;
+            }
+            window.onkeydown = null;
+
             document.getElementById("snakePlatform").style.display = "none";
             document.getElementById("portalScreen").style.display = "flex";
         }
 
-        // TRIGGER SUBROUTINE OPTIONS
+        // TRIGGER OPTIONS
         function selectMenuOption(option) {
             if (option === 'play') {
-                alert("Je hebt op PLAY gedrukt! Tijd om te skaten.");
+                // Hide menu text layout modules
+                document.getElementById("mainGameMenu").style.display = "none";
+                
+                // Mount canvas display layouts dynamically
+                document.getElementById("snakeCanvas").style.display = "block";
+                document.getElementById("gameScoreContainer").style.display = "block";
+                
+                // Initialize the chessboard matrix simulation loop
+                launchChessboardEngine();
             } else if (option === 'skins') {
-                alert("Je hebt op SKINS gedrukt! Kies een vette outfit.");
+                alert("Skins menu volgt snel!");
             } else if (option === 'fruit') {
-                alert("Je hebt op FRUIT gedrukt! Kies je lievelingseten.");
+                alert("Fruit instellingen volgen snel!");
             }
         }
-    </script>
-</body>
-</html>
+
+        // CHESSBOARD ACTIVE CONTROLLER
+        function launchChessboardEngine() {
+            if (runtimeLoopTicker) clearInterval(runtimeLoopTicker);
+            
+            scoreTracker = 0;
+            document.getElementById("liveScore").innerText = scoreTracker;
+            
+            // Standard Starting Anatomy: Head + body part segment attached 
+            snakeCoordinates = [
+                { x: 10, y: 10 },
+                { x: 9, y: 10 }
+            ];
+            
+            vectorX = 1;
+            vectorY = 0;
+
+            generateRandomApplePosition();
+
+            window.onkeydown = function(e) {
+                if (e.key === "ArrowLeft" && vectorX === 0)  { vectorX = -1; vectorY = 0; }
+                if (e.key === "ArrowRight" && vectorX === 0) { vectorX = 1;  vectorY = 0; }
+                if (e.key === "ArrowUp" && vectorY === 0)    { vectorX = 0;  vectorY = -1; }
+                if (e.key === "ArrowDown" && vectorY === 0)  { vectorX = 0;  vectorY = 1; }
+            };
+
+            runtimeLoopTicker = setInterval(processEngineFrameUpdate, 130);
+        }
+
