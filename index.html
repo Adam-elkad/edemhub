@@ -2,306 +2,318 @@
 <html lang="nl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Edem Surfer - Ultimate Grand Pro Edition</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EdemGames - Poki Style</title>
     <style>
         * {
             box-sizing: border-box;
-            user-select: none;
-            -webkit-user-select: none;
             margin: 0;
             padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
+
         body {
-            background: #030712;
-            font-family: 'Montserrat', 'Segoe UI', Helvetica, Arial, sans-serif;
+            background: #0f172a;
+            color: white;
+            padding-bottom: 60px;
+        }
+
+        /* Top Bar & Zoeken */
+        header {
+            background: #1e293b;
+            padding: 15px 30px;
             display: flex;
-            justify-content: center;
             align-items: center;
-            height: 100vh;
-            width: 100vw;
-            overflow: hidden;
-            color: #f3f4f6;
-        }
-
-        #gameContainer {
-            position: relative;
-            width: 440px;
-            height: 720px;
-            box-shadow: 0 30px 70px rgba(0, 0, 0, 0.95);
-            border-radius: 32px;
-            overflow: hidden;
-            border: 6px solid #1f2937;
-            background: #0b1329;
-        }
-
-        canvas {
-            display: block;
-            background: linear-gradient(to bottom, #020617 0%, #0b1528 50%, #1e293b 100%);
-        }
-
-        /* Grafische HUD Elementen */
-        #ui {
-            position: absolute;
-            top: 25px;
-            left: 20px;
-            right: 20px;
-            display: flex;
             justify-content: space-between;
-            align-items: center;
-            font-weight: 900;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.8);
-            pointer-events: none;
-            z-index: 10;
-        }
-
-        .stat-box {
-            background: rgba(17, 24, 39, 0.85);
-            padding: 8px 16px;
-            border-radius: 12px;
-            border: 1px solid #374151;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 16px;
-            letter-spacing: 0.5px;
-        }
-
-        #scoreBox { color: #f59e0b; box-shadow: inset 0 0 10px rgba(245, 158, 11, 0.2); }
-        #coinBox { color: #eab308; box-shadow: inset 0 0 10px rgba(234, 179, 8, 0.2); }
-
-        #powerupUI {
-            position: absolute;
-            bottom: 25px;
-            left: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            z-index: 10;
-            pointer-events: none;
-        }
-
-        .active-bar {
-            width: 150px;
-            background: rgba(17, 24, 39, 0.9);
-            border: 1px solid #4b5563;
-            padding: 6px;
-            border-radius: 10px;
-            display: none;
+            position: sticky;
+            top: 0;
+            z-index: 100;
             box-shadow: 0 4px 10px rgba(0,0,0,0.3);
         }
 
-        .bar-title {
-            font-size: 10px;
-            font-weight: 800;
-            margin-bottom: 4px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .active-bar-container {
-            width: 100%;
-            height: 8px;
-            background: #1f2937;
-            border-radius: 4px;
-            overflow: hidden;
-        }
-
-        .active-bar-fill {
-            height: 100%;
-            width: 100%;
-            border-radius: 4px;
-        }
-
-        /* Schermen Overlay Masterclass */
-        .overlay-screen {
-            position: absolute;
-            inset: 0;
-            background: rgba(11, 17, 30, 0.98);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            padding: 35px;
-            z-index: 20;
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
-        }
-
-        h1 {
-            font-size: 46px;
-            margin: 0 0 5px 0;
+        .logo {
+            font-size: 26px;
+            font-weight: 900;
             color: #3b82f6;
             text-transform: uppercase;
-            letter-spacing: 4px;
-            text-shadow: 0 0 20px rgba(59, 130, 246, 0.6);
-        }
-
-        .subtitle {
-            color: #6b7280;
-            font-size: 14px;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            margin-bottom: 20px;
-            font-weight: 700;
-        }
-
-        .btn {
-            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
-            color: #ffffff;
-            border: none;
-            padding: 16px 44px;
-            font-size: 18px;
-            border-radius: 16px;
-            cursor: pointer;
-            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-            font-weight: 800;
-            margin-top: 15px;
-            box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4);
-            text-transform: uppercase;
-            width: 85%;
-            max-width: 290px;
             letter-spacing: 1px;
-            border: 1px solid rgba(255,255,255,0.1);
-        }
-
-        .btn:hover { 
-            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-            transform: translateY(-3px);
-            box-shadow: 0 10px 25px rgba(37, 99, 235, 0.6);
-        }
-
-        .btn:active {
-            transform: translateY(-1px);
-        }
-
-        .btn-secondary {
-            background: linear-gradient(135deg, #4b5563 0%, #374151 100%);
-            box-shadow: 0 6px 15px rgba(75, 85, 99, 0.4);
-            font-size: 15px;
-            padding: 14px 35px;
-            border: 1px solid rgba(255,255,255,0.05);
-        }
-        .btn-secondary:hover {
-            background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
-            box-shadow: 0 8px 20px rgba(75, 85, 99, 0.6);
-        }
-
-        .instructions {
-            background: rgba(17, 24, 39, 0.6);
-            border: 1px solid #374151;
-            padding: 16px;
-            border-radius: 18px;
-            margin-top: 15px;
-            width: 100%;
-            max-width: 350px;
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.4);
-        }
-
-        .instructions p { color: #9ca3af; margin: 6px 0; font-size: 13px; text-align: left; display: flex; justify-content: space-between; }
-        .instructions b { color: #ffffff; }
-
-        /* Shop Elementen */
-        .shop-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 14px;
-            width: 100%;
-            max-width: 370px;
-            margin: 20px 0;
-            overflow-y: auto;
-            max-height: 320px;
-            padding: 5px;
-        }
-
-        .shop-item {
-            background: #1f2937;
-            border: 2px solid #4b5563;
-            border-radius: 16px;
-            padding: 14px;
             cursor: pointer;
-            transition: all 0.2s ease;
+        }
+
+        .logo span {
+            color: #10b981;
+        }
+
+        .search-container {
+            flex: 1;
+            max-width: 500px;
+            margin: 0 20px;
+        }
+
+        .search-bar {
+            width: 100%;
+            padding: 12px 20px;
+            border-radius: 25px;
+            border: none;
+            background: #0f172a;
+            color: white;
+            font-size: 16px;
+            outline: none;
+            transition: 0.2s;
+        }
+
+        .search-bar:focus {
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.5);
+        }
+
+        /* Categorie Knoppen */
+        .categories {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            padding: 20px;
+            overflow-x: auto;
+            background: #0f172a;
+        }
+
+        .category-btn {
+            background: #1e293b;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 14px;
+            white-space: nowrap;
+            transition: 0.2s;
+        }
+
+        .category-btn:hover, .category-btn.active {
+            background: #3b82f6;
+            transform: translateY(-2px);
+        }
+
+        /* Games Grid Layout */
+        .main-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .games-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 20px;
+        }
+
+        .game-card {
+            background: #1e293b;
+            border-radius: 16px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
             position: relative;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            display: flex;
+            flex-direction: column;
+            aspect-ratio: 1 / 1;
         }
 
-        .shop-item:hover {
-            transform: scale(1.03);
-            border-color: #6b7280;
+        .game-card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.4);
         }
 
-        .shop-item.active {
-            border-color: #10b981;
-            background: #064e3b;
-            box-shadow: 0 0 15px rgba(16, 185, 129, 0.3);
+        .game-thumbnail {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 50px;
+            font-weight: bold;
         }
 
-        .shop-item h3 { margin: 0 0 4px 0; font-size: 14px; font-weight: 800; letter-spacing: 0.5px; }
-        .shop-item p { margin: 0; font-size: 12px; color: #eab308; font-weight: 800; }
-
-        .skin-preview-dot {
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            margin: 8px auto 0 auto;
-            border: 2px solid #ffffff;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+        .game-info {
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.6);
+            text-align: center;
         }
 
-        #shopScreen { display: none; }
-        #statsScreen { display: none; }
+        .game-title {
+            font-size: 14px;
+            font-weight: bold;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
 
-        /* Custom Scrollbar voor de Shop Grid */
-        .shop-grid::-webkit-scrollbar {
-            width: 6px;
+        /* Game Modal Pop-up (Net als Poki) */
+        .modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.95);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 20px;
         }
-        .shop-grid::-webkit-scrollbar-track {
-            background: rgba(0,0,0,0.1);
-            border-radius: 10px;
+
+        .modal-content {
+            background: #1e293b;
+            width: 100%;
+            max-width: 600px;
+            height: 500px;
+            border-radius: 24px;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.6);
         }
-        .shop-grid::-webkit-scrollbar-thumb {
-            background: #4b5563;
-            border-radius: 10px;
+
+        .close-btn {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 30px;
+            cursor: pointer;
+            color: #94a3b8;
+            transition: 0.2s;
+            z-index: 1010;
         }
+
+        .close-btn:hover {
+            color: #ef4444;
+        }
+
+        .game-window {
+            flex: 1;
+            background: #0f172a;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        /* --- MINI GAMES INTERNE STYLING --- */
+        #gameCanvas {
+            background: #111827;
+            display: none;
+        }
+        .arcade-btn {
+            background: #2563eb;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 20px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .arcade-btn:hover { background: #1d4ed8; }
     </style>
 </head>
 <body>
 
-    <div id="gameContainer">
-        <!-- HUD overlay -->
-        <div id="ui">
-            <div class="stat-box" id="scoreBox">MULT: <span id="mult">1x</span> | <span id="score">0</span></div>
-            <div class="stat-box" id="coinBox">🪙 <span id="coins">0</span></div>
+    <!-- Bovenbalk -->
+    <header>
+        <div class="logo" onclick="filterCategory('all')">Edem<span>Games</span></div>
+        <div class="search-container">
+            <input type="text" class="search-bar" id="searchBar" placeholder="Zoek een game..." onkeyup="searchGames()">
         </div>
+        <div style="font-weight: bold; color: #10b981;">🎮 Open Beta</div>
+    </header>
 
-        <!-- Actieve timers voor powerups -->
-        <div id="powerupUI">
-            <div id="boardBar" class="active-bar">
-                <div class="bar-title" style="color:#10b981;">🛹 Hoverboard</div>
-                <div class="active-bar-container"><div class="active-bar-fill" id="boardFill" style="background:#10b981;"></div></div>
+    <!-- Categorie Filter Balk -->
+    <div class="categories">
+        <button class="category-btn active" onclick="filterCategory('all', this)">Alle Games</button>
+        <button class="category-btn" onclick="filterCategory('action', this)">Actie</button>
+        <button class="category-btn" onclick="filterCategory('arcade', this)">Arcade</button>
+        <button class="category-btn" onclick="filterCategory('puzzle', this)">Puzzel</button>
+    </div>
+
+    <!-- Games Overzicht -->
+    <div class="main-container">
+        <div class="games-grid" id="gamesGrid">
+            <!-- Game 1 -->
+            <div class="game-card" data-category="action" data-title="space clicker" onclick="openGame('clicker')">
+                <div class="game-thumbnail" style="background: #ec4899;">🚀</div>
+                <div class="game-info"><div class="game-title">Space Clicker</div></div>
             </div>
-            <div id="magnetBar" class="active-bar">
-                <div class="bar-title" style="color:#a855f7;">🧲 Muntenmagneet</div>
-                <div class="active-bar-container"><div class="active-bar-fill" id="magnetFill" style="background:#a855f7;"></div></div>
+            <!-- Game 2 -->
+            <div class="game-card" data-category="arcade" data-title="retro snake" onclick="openGame('snake')">
+                <div class="game-thumbnail" style="background: #10b981;">🐍</div>
+                <div class="game-info"><div class="game-title">Retro Snake</div></div>
             </div>
-            <div id="jetpackBar" class="active-bar">
-                <div class="bar-title" style="color:#06b6d4;">🚀 Jetpack Flight</div>
-                <div class="active-bar-container"><div class="active-bar-fill" id="jetpackFill" style="background:#06b6d4;"></div></div>
+            <!-- Game 3 -->
+            <div class="game-card" data-category="puzzle" data-title="geheugenspel" onclick="openGame('memory')">
+                <div class="game-thumbnail" style="background: #f59e0b;">🧠</div>
+                <div class="game-info"><div class="game-title">Geheugenspel</div></div>
             </div>
-            <div id="multiplierBar" class="active-bar">
-                <div class="bar-title" style="color:#3b82f6;">⭐ 2X Multiplier</div>
-                <div class="active-bar-container"><div class="active-bar-fill" id="multiplierFill" style="background:#3b82f6;"></div></div>
+            <!-- Game 4 -->
+            <div class="game-card" data-category="action" data-title="reactietest" onclick="openGame('reaction')">
+                <div class="game-thumbnail" style="background: #ef4444;">⚡</div>
+                <div class="game-info"><div class="game-title">Reactietest</div></div>
             </div>
         </div>
+    </div>
 
-        <!-- Render window -->
-        <canvas id="gameCanvas" width="440" height="720"></canvas>
+    <!-- Het Pop-up Speelscherm (Modal) -->
+    <div class="modal" id="gameModal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeGame()">&times;</span>
+            <div class="game-window" id="gameWindow">
+                <!-- Dynamische game elementen verschijnen hier -->
+            </div>
+        </div>
+    </div>
 
-        <!-- Startmenu -->
-        <div id="mainMenu" class="overlay-screen">
-            <h1>Edem Surfer</h1>
-            <div class="subtitle">Ultimate Pro Edition</div>
-            <p id="highScoreText" style="color: #f59e0b; font-weight: 800; font-size: 16px; letter-spacing: 0.5px;">HIGHSCORE: 0</p>
+    <script>
+        // --- PORTAL INTERFACES LOGICA ---
+        function searchGames() {
+            let input = document.getElementById('searchBar').value.toLowerCase();
+            let cards = document.getElementsByClassName('game-card');
+
+            for (let i = 0; i < cards.length; i++) {
+                let title = cards[i].getAttribute('data-title');
+                if (title.includes(input)) {
+                    cards[i].style.display = "flex";
+                } else {
+                    cards[i].style.display = "none";
+                }
+            }
+        }
+
+        function filterCategory(category, button) {
+            let cards = document.getElementsByClassName('game-card');
+            let buttons = document.getElementsByClassName('category-btn');
             
-            <div class="instructions">
+            for (let b of buttons) b.classList.remove('active');
+            if (button) button.classList.add('active');
+
+            for (let i = 0; i < cards.length; i++) {
+                let cat = cards[i].getAttribute('data-category');
+                if (category === 'all' || cat === category) {
+                    cards[i].style.display = "flex";
+                } else {
+                    cards[i].style.display = "none";
+                }
+            }
+        }
+
+        // --- LIVE GAME RUNNERS ---
+        let currentInterval = null;
+
+        function openGame(gameId) {
+            const windowEl = document.getElementById('gameWindow');
+            windowEl.innerHTML = ""; // Reset venster
+            document.getElementById('gameModal').style.display = "flex";
+
+            if (gameId === 'clicker') {
+                let score = 0;
+                windowEl.innerHTML = `
+                    <div style="text-align:center;">
+                        <h2 style="margin-bottom:15px;" id="cScore">Score: 0</h2>
+                        <button class="arcade-btn" id="clickBtn">🚀 KLIK!</button>
+                    </div>`;
