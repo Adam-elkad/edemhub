@@ -24,11 +24,11 @@
             position: relative;
         }
 
-        /* --- SCHERM 1: INLOG SCHERM OVERLAY (WERKT NU 100%) --- */
+        /* --- SCHERM 1: DE INTRO-VRAAG OVERLAY (USER IN TYPEN) --- */
         #loginOverlay {
-            position: fixed;
+            position: absolute;
             inset: 0;
-            background-color: #111b21; /* Donkere Roblox/WhatsApp stijl */
+            background-color: #111b21; /* Donkere WhatsApp stijl */
             display: flex;
             justify-content: center;
             align-items: center;
@@ -50,29 +50,29 @@
             color: #e9edef;
             font-size: 24px;
             margin-bottom: 25px;
-            font-weight: 500;
+            font-weight: 700;
             letter-spacing: 0.5px;
+            text-transform: uppercase;
         }
 
         .input-container-box {
             position: relative;
             width: 100%;
-            margin-bottom: 30px;
+            margin-bottom: 10px;
         }
 
-        /* Extra lange invulbalk met @ aan het begin */
+        /* Duidelijk zichtbare invoerbalk met @ */
         .login-input {
             width: 100%;
             background-color: #2a3942;
             border: 2px solid #3d4c55;
-            padding: 14px 16px 14px 40px; 
+            padding: 14px 16px 14px 45px; 
             border-radius: 10px;
             color: #e9edef;
-            font-size: 16px;
+            font-size: 18px;
             outline: none;
             font-weight: bold;
             transition: border-color 0.2s;
-            user-select: text; /* Zorgt dat je kunt typen! */
         }
 
         .login-input:focus {
@@ -86,8 +86,16 @@
             top: 50%;
             transform: translateY(-50%);
             color: #00a884;
-            font-size: 20px;
+            font-size: 22px;
             font-weight: 900;
+        }
+
+        .limit-note {
+            color: #8696a0;
+            font-size: 12px;
+            margin-bottom: 25px;
+            text-align: left;
+            padding-left: 5px;
         }
 
         .login-btn {
@@ -110,9 +118,9 @@
             transform: translateY(-1px);
         }
 
-        /* --- SCHERM 2: WHATSAPP INTERFACE --- */
+        /* --- SCHERM 2: WHATSAPP INTERFACE (START VOLLEDIG LEEG) --- */
         #whatsappContainer {
-            display: none; /* Wordt pas zichtbaar na succesvol inloggen */
+            display: none; /* Wordt pas geopend na succesvol inloggen */
             width: 100%;
             max-width: 1396px;
             height: 95vh;
@@ -122,7 +130,6 @@
             overflow: hidden;
         }
 
-        /* LINKERKOLOM */
         .sidebar {
             width: 35%;
             max-width: 400px;
@@ -163,7 +170,6 @@
             font-size: 15px;
         }
 
-        /* BALK OM MENSEN OF GROEPEN TOE TE VOEGEN */
         .add-friend-bar {
             padding: 12px 14px;
             background-color: #fff;
@@ -181,7 +187,6 @@
             font-size: 14px;
             outline: none;
             color: #111b21;
-            user-select: text;
         }
 
         .add-friend-btn {
@@ -323,7 +328,6 @@
             position: relative;
             word-wrap: break-word;
             line-height: 1.4;
-            user-select: text;
         }
 
         .msg-bubble.sent {
@@ -364,7 +368,6 @@
             font-size: 15px;
             outline: none;
             color: #111b21;
-            user-select: text;
         }
 
         .send-btn {
@@ -378,4 +381,4 @@
 </head>
 <body>
 
-    <!-- SCHERM 1: DE INTRO-VRAAG (START OVERLAY) -->
+    <!-- SCHERM 1: DE INTRO-VRAAG (USER IN TYPEN) -->
