@@ -115,7 +115,7 @@
         #gameWrapper {
             width: 100%;
             max-width: 600px;
-            height: 520px;
+            height: 540px;
             background: #1e293b;
             border-radius: 24px;
             display: flex;
@@ -158,6 +158,7 @@
             align-items: center;
             background: #0f172a;
             color: white;
+            position: relative;
         }
 
         .arcade-btn {
@@ -213,7 +214,7 @@
                 <button class="close-btn" onclick="exitTheater()">❌ SLUITEN</button>
             </div>
             <div class="game-content-area" id="gamePlayground">
-                <!-- Spellen laden hier live in -->
+                <!-- Game data injects here live -->
             </div>
         </div>
     </div>
@@ -221,14 +222,13 @@
     <script>
         let snakeInterval = null;
 
-        // LAUNCH GAME SWITCHER
         function launchGame(gameId, gameTitle) {
             document.getElementById('portalScreen').style.display = "none";
             document.getElementById('theaterScreen').style.display = "flex";
             document.getElementById('theaterGameTitle').innerText = gameTitle;
 
             const playground = document.getElementById('gamePlayground');
-            playground.innerHTML = ""; // Scherm leegmaken
+            playground.innerHTML = ""; 
 
             // GAME 1: SPACE CLICKER
             if (gameId === 'clicker') {
@@ -245,50 +245,45 @@
                 };
             }
 
-            // GAME 2: RETRO SNAKE
+            // GAME 2: RETRO SNAKE (FULLY REPAIRED & OPERATIONAL)
             if (gameId === 'snake') {
                 playground.innerHTML = `
-                    <div style="text-align:center;">
-                        <h3 id="snakeScore" style="color:#ffcc00; margin-bottom:10px;">Score: 0</h3>
-                        <canvas id="snakeCanvas" width="300" height="300" style="border:3px solid #334155; background:#111827; display:block; border-radius:10px;"></canvas>
-                        <p style="font-size:12px; color:#94a3b8; margin-top:8px;">Gebruik de Pijltjestoetsen om te sturen!</p>
+                    <div style="text-align:center;" id="snakeMenu">
+                        <h2 style="margin-bottom:15px; color:#ffcc00;">Klaar om te sturen?</h2>
+                        <button class="arcade-btn" onclick="startSnakeGame()">START SPEL</button>
                     </div>`;
+            }
 
-                const canvas = document.getElementById('snakeCanvas');
-                const ctx = canvas.getContext('2d');
-                const gridCell = 15;
+            // GAME 3: GEHEUGENSPEL (MEMORY)
+            if (gameId === 'memory') {
+                let cardsData = ['⭐', '⭐', '🍎', '🍎', '💎', '💎', '👻', '👻', '🐱', '🐱', '⚽', '⚽'];
+                cardsData.sort(() => Math.random() - 0.5); 
                 
-                let snake = [{x: 10, y: 10}];
-                let food = {x: 5, y: 5};
-                let dx = 1, dy = 0;
-                let currentScore = 0;
+                playground.innerHTML = `<div id="memoryGrid" style="display:grid; grid-template-columns:repeat(4, 75px); gap:12px; justify-content:center; align-content:center;"></div>`;
+                const mGrid = document.getElementById('memoryGrid');
+                let cardChoice = null;
+                let busy = false;
 
-                // Toetsenbord besturing koppelen
-                window.onkeydown = function(e) {
-                    if (e.key === 'ArrowLeft' && dx === 0) { dx = -1; dy = 0; }
-                    if (e.key === 'ArrowRight' && dx === 0) { dx = 1; dy = 0; }
-                    if (e.key === 'ArrowUp' && dy === 0) { dx = 0; dy = -1; }
-                    if (e.key === 'ArrowDown' && dy === 0) { dx = 0; dy = 1; }
-                };
+                cardsData.forEach((emoji) => {
+                    let tile = document.createElement('button');
+                    tile.style.cssText = "height:75px; font-size:26px; background:#1e293b; border:2px solid #334155; border-radius:12px; color:transparent; cursor:pointer; transition: 0.15s;";
+                    tile.innerText = emoji;
+                    
+                    tile.onclick = function() {
+                        if (busy || tile === cardChoice || tile.style.color === "white") return;
 
-                // Game Loop voor Snake
-                snakeInterval = setInterval(() => {
-                    let head = {x: snake[0].x + dx, y: snake[0].y + dy};
+                        tile.style.color = "white";
+                        tile.style.background = "#2563eb";
 
-                    // Check muurbotsing
-                    if (head.x < 0 || head.x >= 20 || head.y < 0 || head.y >= 20) {
-                        clearInterval(snakeInterval);
-                        alert("Game Over! Eindscore: " + currentScore);
-                        exitTheater();
-                        return;
-                    }
-
-                    snake.unshift(head);
-
-                    // Check of slang voedsel eet
-                    if (head.x === food.x && head.y === food.y) {
-                        currentScore += 10;
-                        document.getElementById('snakeScore').innerText = "Score: " + currentScore;
-                        food = {
-                            x: Math.floor(Math.random() * 20),
-                            y: Math.floor(Math.random() * 20)
+                        if (!cardChoice) {
+                            cardChoice = tile;
+                        } else {
+                            if (cardChoice.innerText === tile.innerText) {
+                                cardChoice = null;
+                            } else {
+                                busy = true;
+                                setTimeout(() => {
+                                    tile.style.color = "transparent";
+                                    tile.style.background = "#1e293b";
+                                    cardChoice.style.color = "transparent";
+                                    cardChoice.style.background = "#1e293b";
