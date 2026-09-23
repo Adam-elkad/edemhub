@@ -24,7 +24,7 @@
             align-items: center;
         }
 
-        /* --- SCHERM 1: HOMEPAGE PORTAL --- */
+        /* --- SCREEN 1: HOMEPAGE PORTAL --- */
         #portalScreen {
             position: absolute;
             inset: 0;
@@ -103,11 +103,11 @@
             color: black;
         }
 
-        /* --- SCHERM 2: APART SNAKE SPEELPLATFORM --- */
+        /* --- SCREEN 2: BLACK SNAKE GAMEPLAY PLATFORM --- */
         #snakePlatform {
             position: absolute;
             inset: 0;
-            background: #0f172a;
+            background: #000000; /* Turns completely black as requested */
             display: none; 
             flex-direction: column;
             align-items: center;
@@ -144,33 +144,37 @@
             box-shadow: 0 2px 0 #b91c1c;
         }
 
-        .score-counter {
-            font-size: 22px;
+        /* Menu layout text items inside black screen */
+        .game-menu-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .menu-item-text {
+            font-size: 32px;
             font-weight: 900;
-            color: #ffcc00;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
-        }
-
-        #snakeCanvas {
-            background: #1e293b;
-            border: 4px solid #334155;
-            border-radius: 16px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.5);
-            display: block;
-        }
-
-        .controls-note {
-            margin-top: 15px;
-            font-size: 13px;
-            color: #64748b;
+            letter-spacing: 2px;
+            cursor: pointer;
+            transition: transform 0.15s, color 0.15s;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+        }
+
+        #playBtn { color: #2bd980; }
+        #skinsBtn { color: #2cc9f3; }
+        #fruitBtn { color: #ff5376; }
+
+        .menu-item-text:hover {
+            transform: scale(1.1);
+            filter: brightness(1.2);
         }
     </style>
 </head>
 <body>
 
-    <!-- SCHERM 1: HOMEPAGE PORTAL -->
+    <!-- SCREEN 1: PORTAL MAIN HOMEPAGE -->
     <div id="portalScreen">
         <header>
             <div class="logo">Poki<span>Hub</span></div>
@@ -187,136 +191,42 @@
         </div>
     </div>
 
-    <!-- SCHERM 2: APART SNAKE SPEELPLATFORM -->
+    <!-- SCREEN 2: APART SNAKE SPEELPLATFORM (BLACK EDITION) -->
     <div id="snakePlatform">
         <div class="top-navigation">
             <button class="backspace-btn" onclick="returnToHomePortal()">⬅ TERUG</button>
-            <div class="score-counter">SCORE: <span id="liveScore">0</span></div>
         </div>
 
-        <canvas id="snakeCanvas" width="378" height="378"></canvas>
-        
-        <div class="controls-note">Gebruik de Pijltjestoetsen om te sturen</div>
+        <!-- The menu text blocks built right inside the black frame -->
+        <div class="game-menu-container">
+            <div class="menu-item-text" id="playBtn" onclick="selectMenuOption('play')">PLAY</div>
+            <div class="menu-item-text" id="skinsBtn" onclick="selectMenuOption('skins')">SKINS</div>
+            <div class="menu-item-text" id="fruitBtn" onclick="selectMenuOption('fruit')">FRUIT</div>
+        </div>
     </div>
 
     <script>
-        let runtimeLoopTicker = null;
-        
-        const canvas = document.getElementById("snakeCanvas");
-        const ctx = canvas.getContext("2d");
-        
-        const gridSizeUnits = 21;
-        const cellPixelDimension = 18;
-
-        let snakeCoordinates = [];
-        let activeApple = { x: 0, y: 0 };
-        let vectorX = 1;
-        let vectorY = 0;
-        let scoreTracker = 0;
-
-        // SCHERMWISSEL ENGINE (GEVALIDEERD)
+        // INTERACTIVE TRANSITION ENGINES
         function switchToSnakePlatform() {
             document.getElementById("portalScreen").style.display = "none";
             document.getElementById("snakePlatform").style.display = "flex";
-            
-            initializeSnakeGame();
         }
 
         function returnToHomePortal() {
-            if (runtimeLoopTicker) {
-                clearInterval(runtimeLoopTicker);
-                runtimeLoopTicker = null;
-            }
-            window.onkeydown = null;
-
             document.getElementById("snakePlatform").style.display = "none";
             document.getElementById("portalScreen").style.display = "flex";
         }
 
-        // INITIALISATIE VAN DE CORE PHYSICS
-        function initializeSnakeGame() {
-            if (runtimeLoopTicker) clearInterval(runtimeLoopTicker);
-            
-            scoreTracker = 0;
-            document.getElementById("liveScore").innerText = scoreTracker;
-            
-            // Startpositie array setup
-            snakeCoordinates = [
-                { x: 10, y: 10 },
-                { x: 9, y: 10 }
-            ];
-            
-            vectorX = 1;
-            vectorY = 0;
-
-            generateRandomApplePosition();
-
-            window.onkeydown = function(e) {
-                if (e.key === "ArrowLeft" && vectorX === 0)  { vectorX = -1; vectorY = 0; }
-                if (e.key === "ArrowRight" && vectorX === 0) { vectorX = 1;  vectorY = 0; }
-                if (e.key === "ArrowUp" && vectorY === 0)    { vectorX = 0;  vectorY = -1; }
-                if (e.key === "ArrowDown" && vectorY === 0)  { vectorX = 0;  vectorY = 1; }
-            };
-
-            runtimeLoopTicker = setInterval(processEngineFrameUpdate, 130);
-        }
-
-        function generateRandomApplePosition() {
-            activeApple.x = Math.floor(Math.random() * gridSizeUnits);
-            activeApple.y = Math.floor(Math.random() * gridSizeUnits);
-
-            if (snakeCoordinates.some(part => part.x === activeApple.x && part.y === activeApple.y)) {
-                generateRandomApplePosition();
+        // TRIGGER SUBROUTINE OPTIONS
+        function selectMenuOption(option) {
+            if (option === 'play') {
+                alert("Je hebt op PLAY gedrukt! Tijd om te skaten.");
+            } else if (option === 'skins') {
+                alert("Je hebt op SKINS gedrukt! Kies een vette outfit.");
+            } else if (option === 'fruit') {
+                alert("Je hebt op FRUIT gedrukt! Kies je lievelingseten.");
             }
         }
-
-        // ENGINE LOOP UPDATE
-        function processEngineFrameUpdate() {
-            // DEEPLINK CORRECTIE: Wijst nu correct naar de index [0] van het slangenhoofd
-            let structuralHead = { 
-                x: snakeCoordinates[0].x + vectorX, 
-                y: snakeCoordinates[0].y + vectorY 
-            };
-
-            // Muurbotsing check
-            if (structuralHead.x < 0 || structuralHead.x >= gridSizeUnits || structuralHead.y < 0 || structuralHead.y >= gridSizeUnits) {
-                initializeSnakeGame();
-                return;
-            }
-
-            // Lichaamsbotsing check
-            if (snakeCoordinates.some(segment => segment.x === structuralHead.x && segment.y === structuralHead.y)) {
-                initializeSnakeGame();
-                return;
-            }
-
-            snakeCoordinates.unshift(structuralHead);
-
-            // Appel opeten check
-            if (structuralHead.x === activeApple.x && structuralHead.y === activeApple.y) {
-                scoreTracker++;
-                document.getElementById("liveScore").innerText = scoreTracker;
-                generateRandomApplePosition();
-            } else {
-                snakeCoordinates.pop();
-            }
-
-            renderSimulationFrames();
-        }
-
-        // TEKEN PIPELINE CANVAS
-        function renderSimulationFrames() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-            // Schaakbord genereren
-            for (let row = 0; row < gridSizeUnits; row++) {
-                for (let col = 0; col < gridSizeUnits; col++) {
-                    if ((row + col) % 2 === 0) {
-                        ctx.fillStyle = "#1e293b"; 
-                    } else {
-                        ctx.fillStyle = "#111827"; 
-                    }
-                    ctx.fillRect(col * cellPixelDimension, row * cellPixelDimension, cellPixelDimension, cellPixelDimension);
-                }
-            }
-
+    </script>
+</body>
+</html>
