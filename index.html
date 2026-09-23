@@ -107,7 +107,7 @@
         #snakePlatform {
             position: absolute;
             inset: 0;
-            background: #000000; /* Start direct in het zwart */
+            background: #000000; 
             display: none; 
             flex-direction: column;
             align-items: center;
@@ -230,7 +230,6 @@
         const canvas = document.getElementById("snakeCanvas");
         const ctx = canvas.getContext("2d");
         
-        // Exact 20x20 schaakbord grid (360px breedte / 20 = 18px per vakje)
         const gridSizeUnits = 20;
         const cellPixelDimension = 18;
 
@@ -245,7 +244,6 @@
             document.getElementById("portalScreen").style.display = "none";
             document.getElementById("snakePlatform").style.display = "flex";
             
-            // Altijd eerst de menu-opties tonen
             document.getElementById("mainGameMenu").style.display = "flex";
             document.getElementById("snakeCanvas").style.display = "none";
             document.getElementById("gameScoreContainer").style.display = "none";
@@ -262,15 +260,13 @@
             document.getElementById("portalScreen").style.display = "flex";
         }
 
-        // CONTROLER VOOR MENU TRRIGERS
+        // CONTROLER VOOR MENU TRIGGERS
         function selectMenuOption(option) {
             if (option === 'play') {
-                // Verberg de menu teksten, open de canvas
                 document.getElementById("mainGameMenu").style.display = "none";
                 document.getElementById("snakeCanvas").style.display = "block";
                 document.getElementById("gameScoreContainer").style.display = "block";
                 
-                // Activeer de spel-engine
                 launchChessboardEngine();
             } else if (option === 'skins') {
                 alert("Skins feature start binnenkort!");
@@ -286,7 +282,7 @@
             scoreTracker = 0;
             document.getElementById("liveScore").innerText = scoreTracker;
             
-            // Vaste begin-anatomie: hoofd op index 0, lijf op index 1
+            // Startpositie slang
             snakeCoordinates = [
                 { x: 10, y: 10 },
                 { x: 9, y: 10 }
@@ -297,7 +293,6 @@
 
             generateRandomApplePosition();
 
-            // Toetsenbord koppeling activeren
             window.onkeydown = function(e) {
                 if (e.key === "ArrowLeft" && vectorX === 0)  { vectorX = -1; vectorY = 0; }
                 if (e.key === "ArrowRight" && vectorX === 0) { vectorX = 1;  vectorY = 0; }
@@ -310,3 +305,12 @@
 
         function generateRandomApplePosition() {
             activeApple.x = Math.floor(Math.random() * gridSizeUnits);
+            activeApple.y = Math.floor(Math.random() * gridSizeUnits);
+
+            if (snakeCoordinates.some(part => part.x === activeApple.x && part.y === activeApple.y)) {
+                generateRandomApplePosition();
+            }
+        }
+
+        // FRAME UPDATE EN COLLISION LOGICA
+        function processEngineFrameUpdate() {
