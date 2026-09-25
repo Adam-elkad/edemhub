@@ -3,158 +3,216 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sterren Vanger Game</title>
+    <title>Edem Falls</title>
     <style>
         body {
             margin: 0;
-            background: #0f172a;
+            padding: 0;
+            background-color: #0d1117;
             color: white;
-            font-family: sans-serif;
+            font-family: Arial, sans-serif;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            min-height: 100vh;
+            height: 100vh;
             overflow: hidden;
         }
-        h1 { margin-bottom: 5px; color: #38bdf8; }
-        p { margin: 0 0 15px 0; color: #94a3b8; }
-        canvas {
-            background: #1e293b;
-            border: 4px solid #38bdf8;
+
+        /* Startscherm Menu */
+        #menu-screen {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #0d1117;
+            z-index: 10;
+        }
+
+        /* Kleine vierhoek/knop */
+        .start-button {
+            width: 150px;
+            height: 150px;
+            background-color: #1f6feb;
+            border: 3px solid #58a6ff;
             border-radius: 8px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            color: white;
+            font-size: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+            transition: transform 0.2s, background-color 0.2s;
+        }
+
+        .start-button:hover {
+            transform: scale(1.05);
+            background-color: #238636;
+            border-color: #2ea043;
+        }
+
+        /* Spelscherm Layout */
+        #game-screen {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h1 {
+            color: #58a6ff;
+            margin-bottom: 5px;
+            font-size: 32px;
+        }
+
+        .instructions {
+            color: #8b949e;
+            font-size: 14px;
+            margin-bottom: 15px;
+        }
+
+        /* Het blauw omlijnde speelveld uit jouw afbeelding */
+        #game-canvas {
+            border: 4px solid #58a6ff;
+            border-radius: 10px;
+            background-color: #0d1117;
+            box-shadow: 0 0 20px rgba(88, 166, 255, 0.2);
         }
     </style>
 </head>
 <body>
 
-    <h1>Sterren Vanger 🌟</h1>
-    <p>Gebruik de <b>Pijltjestoetsen (Links / Rechts)</b> om de mand te bewegen!</p>
+    <!-- STAP 1: HET LEGE START SCHERM MET VIERHOEK -->
+    <div id="menu-screen">
+        <button class="start-button" onclick="startGame()">Edem Falls</button>
+    </div>
 
-    <!-- Het speelveld -->
-    <canvas id="gameCanvas" width="400" height="500"></canvas>
+    <!-- STAP 2: HET RECHTE SPELSCHERM -->
+    <div id="game-screen">
+        <h1>Edem Falls 🌟</h1>
+        <div class="instructions">Gebruik de Pijltjestoetsen (Links / Rechts) om de mand te bewegen!</div>
+        <canvas id="game-canvas" width="450" height="550"></canvas>
+    </div>
 
     <script>
-        const canvas = document.getElementById("gameCanvas");
+        const canvas = document.getElementById("game-canvas");
         const ctx = canvas.getContext("2d");
 
         // Game variabelen
         let score = 0;
         let gameOver = false;
 
-        // De speler (het mandje)
-        const player = {
-            x: 175,
-            y: 460,
-            width: 60,
+        // Het mandje (blauw balkje onderaan)
+        const basket = {
+            x: 50,
+            y: 520,
+            width: 70,
             height: 15,
-            speed: 7,
-            dx: 0
+            speed: 8
         };
 
-        // De vallende ster
+        // De vallende ster (geel rondje)
         const star = {
-            x: Math.random() * (canvas.width - 20),
-            y: 0,
-            size: 15,
+            x: Math.random() * (canvas.width - 20) + 10,
+            y: 50,
+            radius: 8,
             speed: 4
         };
 
-        // Toetsenbord besturing registreren
-        document.addEventListener("keydown", (e) => {
-            if (e.key === "ArrowLeft" || e.key === "Left") player.dx = -player.speed;
-            if (e.key === "ArrowRight" || e.key === "Right") player.dx = player.speed;
+        // Toetsenbord status tracking
+        const keys = {
+            ArrowLeft: false,
+            ArrowRight: false
+        };
+
+        // Functie die wisselt van menu naar het spel
+        function startGame() {
+            document.getElementById("menu-screen").style.display = "none";
+            document.getElementById("game-screen").style.display = "flex";
+            
+            // Start de game loop
+            updateGame();
+        }
+
+        // Besturing luisteraars
+        window.addEventListener("keydown", (e) => {
+            if (e.key in keys) keys[e.key] = true;
         });
 
-        document.addEventListener("keyup", (e) => {
-            if (["ArrowLeft", "Left", "ArrowRight", "Right"].includes(e.key)) {
-                player.dx = 0;
-            }
+        window.addEventListener("keyup", (e) => {
+            if (e.key in keys) keys[e.key] = false;
         });
 
-        // Game logica updaten
-        function update() {
+        // Game Update Logica
+        function updateGame() {
             if (gameOver) return;
 
-            // Beweeg speler en hou binnen het scherm
-            player.x += player.dx;
-            if (player.x < 0) player.x = 0;
-            if (player.x + player.width > canvas.width) player.x = canvas.width - player.width;
+            // Beweeg het mandje naar links of rechts
+            if (keys.ArrowLeft && basket.x > 0) {
+                basket.x -= basket.speed;
+            }
+            if (keys.ArrowRight && basket.x < canvas.width - basket.width) {
+                basket.x += basket.speed;
+            }
 
-            // Beweeg ster naar beneden
+            // Laat de ster vallen
             star.y += star.speed;
 
-            // Check of speler de ster vangt
+            // Check of de ster de bodem raakt (gemist)
+            if (star.y > canvas.height) {
+                // Reset de ster naar boven
+                star.y = 40;
+                star.x = Math.random() * (canvas.width - 20) + 10;
+                // Optioneel: score verlagen of levens aftrekken kan hier
+            }
+
+            // Botsingsdetectie: Vangt het mandje de ster op?
             if (
-                star.y + star.size >= player.y &&
-                star.x + star.size >= player.x &&
-                star.x <= player.x + player.width
+                star.y + star.radius >= basket.y &&
+                star.x >= basket.x &&
+                star.x <= basket.x + basket.width
             ) {
                 score += 1;
-                resetStar();
-                // Maak het spel telkens een klein beetje sneller
-                star.speed += 0.3;
+                // Verhoog de snelheid een klein beetje voor extra uitdaging
+                star.speed += 0.2;
+                // Reset de ster weer naar boven
+                star.y = 40;
+                star.x = Math.random() * (canvas.width - 20) + 10;
             }
 
-            // Check of ster de grond raakt (Game Over)
-            if (star.y > canvas.height) {
-                gameOver = true;
-            }
+            drawGame();
+
+            // Blijf de game verversen
+            requestAnimationFrame(updateGame);
         }
 
-        // Ster resetten naar de top
-        function resetStar() {
-            star.x = Math.random() * (canvas.width - star.size);
-            star.y = 0;
-        }
-
-        // Alles op het scherm tekenen
-        function draw() {
-            // Maak canvas leeg
+        // Teken alles op het canvas
+        function drawGame() {
+            // Maak het scherm leeg voor de nieuwe frame
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            // Teken speler (mandje)
-            ctx.fillStyle = "#38bdf8";
-            ctx.fillRect(player.x, player.y, player.width, player.height);
-
-            // Teken ster
-            ctx.fillStyle = "#facc15";
-            ctx.beginPath();
-            ctx.arc(star.x + star.size/2, star.y + star.size/2, star.size/2, 0, Math.PI * 2);
-            ctx.fill();
-
-            // Teken score
-            ctx.fillStyle = "#ffffff";
+            // 1. Teken de score linksboven (net als op jouw foto)
+            ctx.fillStyle = "white";
             ctx.font = "20px Arial";
-            ctx.fillText(`Score: ${score}`, 15, 30);
+            ctx.fillText("Score: " + score, 20, 35);
 
-            // Game over scherm
-            if (gameOver) {
-                ctx.fillStyle = "rgba(0, 0, 0, 0.75)";
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
+            // 2. Teken de vallende gele ster
+            ctx.beginPath();
+            ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
+            ctx.fillStyle = "#ffc107"; // Mooi ster-geel
+            ctx.fill();
+            ctx.closePath();
 
-                ctx.fillStyle = "#ef4444";
-                ctx.font = "30px Arial";
-                ctx.textAlign = "center";
-                ctx.fillText("GAME OVER", canvas.width / 2, canvas.height / 2 - 10);
-
-                ctx.fillStyle = "#ffffff";
-                ctx.font = "16px Arial";
-                ctx.fillText("Ververs de pagina om opnieuw te spelen", canvas.width / 2, canvas.height / 2 + 25);
-            }
+            // 3. Teken de mand (het lichtblauwe balkje)
+            ctx.fillStyle = "#38bdf8";
+            ctx.fillRect(basket.x, basket.y, basket.width, basket.height);
         }
-
-        // De centrale game loop die constant herhaalt
-        function loop() {
-            update();
-            draw();
-            requestAnimationFrame(loop);
-        }
-
-        // Start het spel
-        loop();
     </script>
 </body>
 </html>
-
