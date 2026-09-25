@@ -3,216 +3,301 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Edem Falls</title>
+    <title>EDEM's Arcade Hub 🎮</title>
     <style>
-        body {
+        * {
+            box-sizing: border-box;
             margin: 0;
             padding: 0;
-            background-color: #0d1117;
-            color: white;
-            font-family: Arial, sans-serif;
+            user-select: none;
+        }
+        body {
+            background-color: #090d16;
+            color: #fff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            height: 100vh;
+            min-height: 100vh;
             overflow: hidden;
         }
-
-        /* Startscherm Menu */
+        h1 {
+            color: #ff007f;
+            text-shadow: 0 0 15px rgba(255, 0, 127, 0.6);
+            margin-bottom: 20px;
+            font-size: 2.5rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        #arcade-container {
+            position: relative;
+            width: 500px;
+            height: 600px;
+            background: #111827;
+            border: 4px solid #ff007f;
+            border-radius: 16px;
+            box-shadow: 0 0 30px rgba(255, 0, 127, 0.3);
+            overflow: hidden;
+        }
+        /* Menu Style */
         #menu-screen {
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #111827 0%, #0f172a 100%);
+            padding: 40px;
+        }
+        #menu-screen h2 {
+            color: #00f5ff;
+            margin-bottom: 30px;
+            font-size: 1.5rem;
+            text-shadow: 0 0 10px rgba(0, 245, 255, 0.4);
+        }
+        .menu-btn {
+            width: 80%;
+            background: linear-gradient(90deg, #ff007f, #7928ca);
+            color: white;
+            border: none;
+            padding: 15px;
+            margin: 10px 0;
+            font-size: 1.2rem;
+            font-weight: bold;
+            border-radius: 10px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(255, 0, 127, 0.3);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .menu-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(255, 0, 127, 0.5);
+        }
+        /* Game Screens */
+        .game-screen {
+            display: none;
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: #0d1117;
-            z-index: 10;
         }
-
-        /* Kleine vierhoek/knop */
-        .start-button {
-            width: 150px;
-            height: 150px;
-            background-color: #1f6feb;
-            border: 3px solid #58a6ff;
-            border-radius: 8px;
-            color: white;
-            font-size: 20px;
-            font-weight: bold;
-            cursor: pointer;
+        canvas {
+            background: #060913;
+            display: block;
+        }
+        /* UI & Back Button */
+        .hud {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            right: 15px;
             display: flex;
+            justify-content: space-between;
             align-items: center;
-            justify-content: center;
-            text-align: center;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
-            transition: transform 0.2s, background-color 0.2s;
+            pointer-events: none;
+            z-index: 5;
         }
-
-        .start-button:hover {
-            transform: scale(1.05);
-            background-color: #238636;
-            border-color: #2ea043;
+        .score-tag {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #00f5ff;
+            text-shadow: 0 0 5px rgba(0, 245, 255, 0.5);
+            background: rgba(0,0,0,0.5);
+            padding: 5px 12px;
+            border-radius: 6px;
         }
-
-        /* Spelscherm Layout */
-        #game-screen {
+        .back-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            pointer-events: auto;
+            font-weight: bold;
+            transition: background 0.2s;
+        }
+        .back-btn:hover {
+            background: #f94144;
+            border-color: #f94144;
+        }
+        /* Game Over Overlay */
+        .game-over-overlay {
             display: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(9, 13, 22, 0.85);
             flex-direction: column;
             align-items: center;
+            justify-content: center;
+            z-index: 10;
         }
-
-        h1 {
-            color: #58a6ff;
-            margin-bottom: 5px;
-            font-size: 32px;
+        .game-over-overlay h3 {
+            color: #f94144;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
         }
-
-        .instructions {
-            color: #8b949e;
-            font-size: 14px;
-            margin-bottom: 15px;
-        }
-
-        /* Het blauw omlijnde speelveld uit jouw afbeelding */
-        #game-canvas {
-            border: 4px solid #58a6ff;
-            border-radius: 10px;
-            background-color: #0d1117;
-            box-shadow: 0 0 20px rgba(88, 166, 255, 0.2);
+        .game-over-overlay p {
+            font-size: 1.2rem;
+            margin-bottom: 20px;
         }
     </style>
 </head>
 <body>
 
-    <!-- STAP 1: HET LEGE START SCHERM MET VIERHOEK -->
-    <div id="menu-screen">
-        <button class="start-button" onclick="startGame()">Edem Falls</button>
-    </div>
+    <h1>EDEM's Arcade Hub 🎮</h1>
 
-    <!-- STAP 2: HET RECHTE SPELSCHERM -->
-    <div id="game-screen">
-        <h1>Edem Falls 🌟</h1>
-        <div class="instructions">Gebruik de Pijltjestoetsen (Links / Rechts) om de mand te bewegen!</div>
-        <canvas id="game-canvas" width="450" height="550"></canvas>
+    <div id="arcade-container">
+        <!-- HOOFDMENU -->
+        <div id="menu-screen">
+            <h2>KIES EEN GAME OM TE STARTEN:</h2>
+            <button class="menu-btn" onclick="startGame('jump')">🚀 1. Edem Jump</button>
+            <button class="menu-btn" onclick="startGame('breaker')">🧱 2. Edem Breaker</button>
+            <button class="menu-btn" onclick="startGame('snake')">🐍 3. Edem Snake</button>
+        </div>
+
+        <!-- GAME INTERFACES -->
+        <div id="game-screen" class="game-screen">
+            <div class="hud">
+                <div id="score-display" class="score-tag">Score: 0</div>
+                <button class="back-btn" onclick="returnToMenu()">Menu ↩</button>
+            </div>
+            <canvas id="gameCanvas" width="492" height="592"></canvas>
+            
+            <div id="over-overlay" class="game-over-overlay">
+                <h3>GAME OVER</h3>
+                <p id="final-score">Score: 0</p>
+                <button class="menu-btn" style="width:auto; padding:10px 25px;" onclick="restartCurrentGame()">Opnieuw proberen</button>
+            </div>
+        </div>
     </div>
 
     <script>
-        const canvas = document.getElementById("game-canvas");
-        const ctx = canvas.getContext("2d");
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        const menuScreen = document.getElementById('menu-screen');
+        const gameScreen = document.getElementById('game-screen');
+        const overOverlay = document.getElementById('over-overlay');
+        const scoreDisplay = document.getElementById('score-display');
+        const finalScore = document.getElementById('final-score');
 
-        // Game variabelen
+        let currentGame = '';
+        let gameLoop;
         let score = 0;
-        let gameOver = false;
+        let keys = {};
 
-        // Het mandje (blauw balkje onderaan)
-        const basket = {
-            x: 50,
-            y: 520,
-            width: 70,
-            height: 15,
-            speed: 8
-        };
+        // Key listeners
+        window.addEventListener('keydown', e => keys[e.key] = true);
+        window.addEventListener('keyup', e => keys[e.key] = false);
 
-        // De vallende ster (geel rondje)
-        const star = {
-            x: Math.random() * (canvas.width - 20) + 10,
-            y: 50,
-            radius: 8,
-            speed: 4
-        };
-
-        // Toetsenbord status tracking
-        const keys = {
-            ArrowLeft: false,
-            ArrowRight: false
-        };
-
-        // Functie die wisselt van menu naar het spel
-        function startGame() {
-            document.getElementById("menu-screen").style.display = "none";
-            document.getElementById("game-screen").style.display = "flex";
+        function startGame(gameType) {
+            menuScreen.style.display = 'none';
+            gameScreen.style.display = 'block';
+            overOverlay.style.display = 'none';
+            currentGame = gameType;
+            score = 0;
+            scoreDisplay.innerText = "Score: " + score;
             
-            // Start de game loop
-            updateGame();
+            if (gameLoop) cancelAnimationFrame(gameLoop);
+            
+            if (gameType === 'jump') initJump();
+            else if (gameType === 'breaker') initBreaker();
+            else if (gameType === 'snake') initSnake();
         }
 
-        // Besturing luisteraars
-        window.addEventListener("keydown", (e) => {
-            if (e.key in keys) keys[e.key] = true;
-        });
-
-        window.addEventListener("keyup", (e) => {
-            if (e.key in keys) keys[e.key] = false;
-        });
-
-        // Game Update Logica
-        function updateGame() {
-            if (gameOver) return;
-
-            // Beweeg het mandje naar links of rechts
-            if (keys.ArrowLeft && basket.x > 0) {
-                basket.x -= basket.speed;
-            }
-            if (keys.ArrowRight && basket.x < canvas.width - basket.width) {
-                basket.x += basket.speed;
-            }
-
-            // Laat de ster vallen
-            star.y += star.speed;
-
-            // Check of de ster de bodem raakt (gemist)
-            if (star.y > canvas.height) {
-                // Reset de ster naar boven
-                star.y = 40;
-                star.x = Math.random() * (canvas.width - 20) + 10;
-                // Optioneel: score verlagen of levens aftrekken kan hier
-            }
-
-            // Botsingsdetectie: Vangt het mandje de ster op?
-            if (
-                star.y + star.radius >= basket.y &&
-                star.x >= basket.x &&
-                star.x <= basket.x + basket.width
-            ) {
-                score += 1;
-                // Verhoog de snelheid een klein beetje voor extra uitdaging
-                star.speed += 0.2;
-                // Reset de ster weer naar boven
-                star.y = 40;
-                star.x = Math.random() * (canvas.width - 20) + 10;
-            }
-
-            drawGame();
-
-            // Blijf de game verversen
-            requestAnimationFrame(updateGame);
+        function returnToMenu() {
+            if (gameLoop) cancelAnimationFrame(gameLoop);
+            currentGame = '';
+            gameScreen.style.display = 'none';
+            menuScreen.style.display = 'flex';
         }
 
-        // Teken alles op het canvas
-        function drawGame() {
-            // Maak het scherm leeg voor de nieuwe frame
+        function triggerGameOver() {
+            cancelAnimationFrame(gameLoop);
+            finalScore.innerText = "Jouw score: " + score;
+            overOverlay.style.display = 'flex';
+        }
+
+        function restartCurrentGame() {
+            startGame(currentGame);
+        }
+
+        // ==========================================
+        // 1. EDEM JUMP (Flappy Bird mechanics)
+        // ==========================================
+        let bird, pipes, jumpFrame;
+        
+        function initJump() {
+            bird = { x: 50, y: 250, vy: 0, radius: 14, gravity: 0.4, jump: -7 };
+            pipes = [];
+            jumpFrame = 0;
+            window.addEventListener('keydown', handleJumpPress);
+            runJump();
+        }
+
+        function handleJumpPress(e) {
+            if (e.key === ' ' || e.key === 'ArrowUp') bird.vy = bird.jump;
+        }
+
+        function runJump() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
+            jumpFrame++;
 
-            // 1. Teken de score linksboven (net als op jouw foto)
-            ctx.fillStyle = "white";
-            ctx.font = "20px Arial";
-            ctx.fillText("Score: " + score, 20, 35);
+            // Bird physics
+            bird.vy += bird.gravity;
+            bird.y += bird.vy;
 
-            // 2. Teken de vallende gele ster
+            // Draw Edem Ball
             ctx.beginPath();
-            ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
-            ctx.fillStyle = "#ffc107"; // Mooi ster-geel
+            ctx.arc(bird.x, bird.y, bird.radius, 0, Math.PI * 2);
+            ctx.fillStyle = '#ff007f';
             ctx.fill();
+            ctx.shadowColor = '#ff007f';
+            ctx.shadowBlur = 10;
             ctx.closePath();
+            ctx.shadowBlur = 0;
 
-            // 3. Teken de mand (het lichtblauwe balkje)
-            ctx.fillStyle = "#38bdf8";
-            ctx.fillRect(basket.x, basket.y, basket.width, basket.height);
-        }
-    </script>
-</body>
-</html>
+            // Obstacles generation
+            if (jumpFrame % 100 === 0) {
+                let gap = 130;
+                let topHeight = Math.random() * (canvas.height - gap - 100) + 50;
+                pipes.push({ x: canvas.width, top: topHeight, bottom: canvas.height - topHeight - gap, passed: false });
+            }
+
+            // Move and draw obstacles
+            for (let i = pipes.length - 1; i >= 0; i--) {
+                let p = pipes[i];
+                p.x -= 3;
+
+                ctx.fillStyle = '#00f5ff';
+                // Top
+                ctx.fillRect(p.x, 0, 50, p.top);
+                // Bottom
+                ctx.fillRect(p.x, canvas.height - p.bottom, 50, p.bottom);
+
+                // Points check
+                if (!p.passed && p.x + 50 < bird.x) {
+                    score++;
+                    scoreDisplay.innerText = "Score: " + score;
+                    p.passed = true;
+                }
+
+                // Collision detection
+                if (bird.x + bird.radius > p.x && bird.x - bird.radius < p.x + 50) {
+                    if (bird.y - bird.radius < p.top || bird.y + bird.radius > canvas.height - p.bottom) {
+                        window.removeEventListener('keydown', handleJumpPress);
+                        triggerGameOver();
+                        return;
+                    }
+                }
+
+                if (p.x < -50) pipes.splice(i, 1);
+            }
+
