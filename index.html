@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Ultimate Clicker Game</title>
+    <title>The Ultimate Clicker Game - Fixed</title>
     <style>
         body {
             font-family: 'Segoe UI', Roboto, sans-serif;
@@ -31,7 +31,6 @@
             border: 6px solid #334155;
             border-radius: 10px;
             box-shadow: 0 0 20px rgba(0,0,0,0.5);
-            overflow: hidden;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -58,7 +57,7 @@
         }
         .tv-alert { animation: tvGlitch 0.2s infinite; color: white !important; font-weight: bold; }
 
-        /* Controlepaneel in het midden */
+        /* Controlepaneel */
         .control-panel {
             text-align: center;
             z-index: 10;
@@ -68,7 +67,6 @@
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.1);
             box-shadow: 0 20px 50px rgba(0,0,0,0.3);
-            transition: opacity 0.5s;
         }
 
         .teller-container {
@@ -97,33 +95,12 @@
             border-radius: 50px;
             cursor: pointer;
             box-shadow: 0 10px 25px rgba(2, 132, 199, 0.4);
-            transition: transform 0.1s, background 0.3s;
+            transition: transform 0.1s;
         }
         .klik-knop:hover { transform: translateY(-2px); }
         .klik-knop:active { transform: scale(0.95); }
 
-        /* De verborgen cheat-balk helemaal onderaan */
-        .verstopte-knop {
-            position: absolute;
-            bottom: 0px;
-            left: 0px;
-            width: 100%;
-            height: 40px;
-            background: transparent;
-            border: none;
-            color: transparent;
-            cursor: pointer;
-            z-index: 20;
-            font-size: 0.8rem;
-            transition: all 0.3s;
-            text-align: center;
-        }
-        .verstopte-knop:hover {
-            background: rgba(255, 255, 255, 0.03);
-            color: rgba(255, 255, 255, 0.3);
-        }
-
-        /* Taart event voor 999 kliks */
+        /* Taart Event */
         .taart-container {
             display: none;
             position: absolute;
@@ -160,10 +137,7 @@
             100% { transform: scale(1.1) rotate(2deg); }
         }
 
-        .taart-emoji {
-            font-size: 6rem;
-            line-height: 1;
-        }
+        .taart-emoji { font-size: 6rem; }
 
         .blaas-knop {
             margin-top: 25px;
@@ -176,12 +150,6 @@
             cursor: pointer;
             font-weight: bold;
             box-shadow: 0 0 15px rgba(239, 68, 68, 0.5);
-            animation: pulse 1.5s infinite;
-        }
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-            100% { transform: scale(1); }
         }
 
         @keyframes shake {
@@ -191,12 +159,21 @@
         }
         .shake-effect { animation: shake 0.1s infinite; color: #f43f5e !important; }
 
-        canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; }
+        /* Simpele CSS Confetti Pop-up */
+        .confetti-pop {
+            position: absolute;
+            font-size: 2rem;
+            animation: vliegOmhoog 1.5s forwards ease-out;
+            pointer-events: none;
+            z-index: 100;
+        }
+        @keyframes vliegOmhoog {
+            0% { transform: translate(0, 0) scale(1); opacity: 1; }
+            100% { transform: translate(var(--x), var(--y)) scale(0.5); opacity: 0; }
+        }
     </style>
 </head>
 <body>
-
-    <canvas id="confetti-canvas"></canvas>
 
     <div class="mini-tv">
         <div class="tv-scherm" id="tvScherm">MODE: NORMAL</div>
@@ -220,34 +197,11 @@
         <button class="blaas-knop" onclick="blaasKaarsjesUit()">BLAAS DE KAARSEN UIT! (KLIK 1000)</button>
     </div>
 
-    <!-- DE VERSTOPTE CHEAT BALK -->
-    <button class="verstopte-knop" id="cheatKnop" onclick="activeerCheat()">▲ [ GEHEIME CHEAT: KLIK HIER ] ▲</button>
-
     <script>
         let aantalKliks = 0;
-        let feestInterval;
-
-        // Confetti initialisatie
-        const canvas = document.getElementById("confetti-canvas");
-        const ctx = canvas.getContext("2d");
-        let confettiStukjes = [];
-        const kleuren = ["#38bdf8", "#34d399", "#fb7185", "#f43f5e", "#fbbf24", "#a78bfa"];
-
-        function pasCanvasFormaatAan() { 
-            canvas.width = window.innerWidth; 
-            canvas.height = window.innerHeight; 
-        }
-        window.addEventListener("resize", pasCanvasFormaatAan);
-        pasCanvasFormaatAan();
 
         function verhoogTeller() {
             aantalKliks++;
-            updateSpelStatus();
-        }
-
-        function activeerCheat() {
-            aantalKliks = 998; 
-            document.getElementById('cheatKnop').style.display = 'none'; 
             updateSpelStatus();
         }
 
@@ -257,22 +211,19 @@
             
             tellerElement.innerText = aantalKliks;
 
-            if (aantalKliks < 500) { 
-                tvElement.innerText = "MODE: NORMAL"; 
-            }
-
-            // 1. Confetti elke 100 kliks (behalve bij 500 en 999)
+            // 1. Confetti effect elke 100 klikken (behalve bij 500)
             if (aantalKliks % 100 === 0 && aantalKliks !== 500) {
-                gooiConfetti(40);
+                maakConfetti();
                 tvElement.innerText = "BOOM! +100";
             }
 
-            // 2. Bij 500 kliks
+            // 2. Animatie bij exact 500 klikken
             if (aantalKliks === 500) {
                 tellerElement.classList.add('shake-effect');
                 tvElement.classList.add('tv-alert');
                 tvElement.innerText = "⚠️ DANGER ⚠️";
-                gooiConfetti(100);
+                maakConfetti();
+                
                 setTimeout(() => {
                     tellerElement.classList.remove('shake-effect');
                     tvElement.classList.remove('tv-alert');
@@ -280,7 +231,7 @@
                 }, 3000);
             }
 
-            // 3. Bij 999 kliks wordt het scherm zwart en komt de taart
+            // 3. Bij 999 klikken wordt het scherm zwart en verschijnt de taart
             if (aantalKliks === 999) {
                 document.body.style.background = "#000"; 
                 document.getElementById('hoofdPaneel').style.opacity = "0"; 
@@ -294,9 +245,45 @@
         }
 
         function blaasKaarsjesUit() {
-            aantalKliks++; 
+            aantalKliks++; // Naar 1000!
             
+            // Kaarsvlammen uitzetten
             document.getElementById('vlam1').style.display = 'none';
             document.getElementById('vlam2').style.display = 'none';
             document.getElementById('vlam3').style.display = 'none';
+            
+            setTimeout(() => {
+                document.getElementById('taartEvent').style.display = "none"; 
+                document.body.style.background = "#1e1b4b";
+                
+                const tvElement = document.getElementById('tvScherm');
+                const hoofdpaneel = document.getElementById('hoofdPaneel');
+                const knopElement = document.getElementById('hoofdKnop');
+                
+                hoofdpaneel.style.opacity = "1";
+                hoofdpaneel.style.pointerEvents = "auto";
+                document.getElementById('teller').innerText = "1000";
+                tvElement.innerText = "🎉 WINNER 🎉";
+                knopElement.innerText = "🏆 GEWONNEN! 🏆";
+                knopElement.style.background = "#e91e63";
+                
+                // Schiet een grote golf confetti af
+                for (let i = 0; i < 40; i++) {
+                    setTimeout(maakConfetti, i * 50);
+                }
+            }, 600);
+        }
+
+        // Super stabiele confetti zonder vastlopers
+        function maakConfetti() {
+            const confettiEmojis = ['🎉', '✨', '⚡', '⭐', '🎈'];
+            const p = document.createElement('div');
+            p.classList.add('confetti-pop');
+            p.innerText = confettiEmojis[Math.floor(Math.random() * confettiEmojis.length)];
+            
+            // Random richting instellen via CSS variabelen
+            const randomX = (Math.random() - 0.5) * 400 + 'px';
+            const randomY = -(Math.random() * 300 + 200) + 'px';
+            p.style.setProperty('--x', randomX);
+            p.style.setProperty('--y', randomY);
             
