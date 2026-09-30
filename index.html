@@ -3,255 +3,72 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EDEM SNAKE 🐍</title>
+    <title>Mijn Eerste Website</title>
     <style>
-        * {
-            box-sizing: border-box;
+        /* CSS voor de opmaak */
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
             margin: 0;
             padding: 0;
-            user-select: none;
+            background-color: #f4f4f4;
+            color: #333;
         }
-        body {
-            background-color: #0b0f19;
+        header {
+            background: #0078d7;
             color: #fff;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            overflow: hidden;
+            padding: 1rem;
+            text-align: center;
         }
-        h1 {
-            color: #4cc9f0;
-            margin-bottom: 10px;
-            text-shadow: 0 0 10px rgba(76, 201, 240, 0.5);
-            font-size: 2.2rem;
-            text-transform: uppercase;
-            letter-spacing: 2px;
+        main {
+            padding: 2rem;
+            max-width: 800px;
+            margin: auto;
+            background: #fff;
         }
-        #score-container {
-            font-size: 1.3rem;
-            font-weight: bold;
-            color: #ffd166;
-            margin-bottom: 15px;
-            background: rgba(255, 255, 255, 0.05);
-            padding: 8px 20px;
-            border-radius: 8px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        #game-container {
-            position: relative;
-            width: 400px;
-            height: 400px;
-            border: 4px solid #4cc9f0;
-            border-radius: 12px;
-            box-shadow: 0 0 25px rgba(76, 201, 240, 0.3);
-            overflow: hidden;
-        }
-        canvas {
-            background-color: #0f172a;
-            display: block;
-        }
-        #game-over-screen {
-            display: none;
-            position: absolute;
-            top: 0;
-            left: 0;
+        footer {
+            text-align: center;
+            padding: 1rem;
+            background: #333;
+            color: #fff;
+            position: fixed;
+            bottom: 0;
             width: 100%;
-            height: 100%;
-            background: rgba(11, 15, 25, 0.9);
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            z-index: 10;
-        }
-        #game-over-screen h2 {
-            color: #f94144;
-            font-size: 2.5rem;
-            margin-bottom: 10px;
-            text-shadow: 0 0 15px rgba(249, 65, 68, 0.5);
-        }
-        #final-score {
-            font-size: 1.2rem;
-            margin-bottom: 20px;
-            color: #e2e8f0;
         }
         button {
-            background: linear-gradient(135deg, #4cc9f0, #4895ef);
+            background: #0078d7;
             color: white;
             border: none;
-            padding: 12px 25px;
-            font-size: 1rem;
-            font-weight: bold;
-            border-radius: 8px;
+            padding: 0.5rem 1rem;
             cursor: pointer;
-            box-shadow: 0 4px 15px rgba(76, 201, 240, 0.4);
-            transition: transform 0.2s, box-shadow 0.2s;
         }
         button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(76, 201, 240, 0.6);
+            background: #005a9e;
         }
     </style>
 </head>
 <body>
 
-    <h1>EDEM SNAKE 🐍</h1>
-    <div id="score-container">🍎 Appels Gegeten: <span id="score">0</span></div>
+    <header>
+        <h1>Welkom op mijn website</h1>
+    </header>
 
-    <div id="game-container">
-        <canvas id="snakeCanvas" width="400" height="400"></canvas>
-        
-        <div id="game-over-screen">
-            <h2>GAME OVER</h2>
-            <p id="final-score">Score: 0</p>
-            <button onclick="resetGame()">Opnieuw Spelen</button>
-        </div>
-    </div>
+    <main>
+        <h2>Over deze pagina</h2>
+        <p>Dit is een schoon en eenvoudig sjabloon om te beginnen met [HTML-code](https://www.doublesmart.nl/wat-is/html-code/).</p>
+        <button onclick="toonMelding()">Klik mij</button>
+    </main>
+
+    <footer>
+        <p>&copy; 2026 Mijn Website</p>
+    </footer>
 
     <script>
-        const canvas = document.getElementById('snakeCanvas');
-        const ctx = canvas.getContext('2d');
-        const scoreElement = document.getElementById('score');
-        const gameOverScreen = document.getElementById('game-over-screen');
-        const finalScoreElement = document.getElementById('final-score');
-
-        const gridSize = 20;
-        const tileCount = canvas.width / gridSize;
-
-        let snake = [];
-        let apple = { x: 0, y: 0 };
-        let dx = gridSize;
-        let dy = 0;
-        let score = 0;
-        let gameActive = true;
-        let gameInterval;
-
-        // Luisteren naar de pijltjestoetsen
-        window.addEventListener('keydown', changeDirection);
-
-        function changeDirection(event) {
-            if (!gameActive) return;
-            
-            const keyPressed = event.key;
-            const goingUp = dy === -gridSize;
-            const goingDown = dy === gridSize;
-            const goingRight = dx === gridSize;
-            const goingLeft = dx === -gridSize;
-
-            if (keyPressed === 'ArrowLeft' && !goingRight) {
-                dx = -gridSize;
-                dy = 0;
-            }
-            if (keyPressed === 'ArrowUp' && !goingDown) {
-                dx = 0;
-                dy = -gridSize;
-            }
-            if (keyPressed === 'ArrowRight' && !goingLeft) {
-                dx = gridSize;
-                dy = 0;
-            }
-            if (keyPressed === 'ArrowDown' && !goingUp) {
-                dx = 0;
-                dy = gridSize;
-            }
+        /* JavaScript voor interactiviteit */
+        function toonMelding() {
+            alert('Hallo! Bedankt voor het klikken.');
         }
-
-        function generateApple() {
-            apple.x = Math.floor(Math.random() * tileCount) * gridSize;
-            apple.y = Math.floor(Math.random() * tileCount) * gridSize;
-
-            // Zorg ervoor dat de appel niet op de slang zelf spawnt
-            snake.forEach(part => {
-                const hasEaten = part.x === apple.x && part.y === apple.y;
-                if (hasEaten) generateApple();
-            });
-        }
-
-        function drawGame() {
-            if (!gameActive) return;
-
-            // Verplaats de kop van de slang
-            const head = { x: snake[0].x + dx, y: snake[0].y + dy };
-
-            // Check botsing met de muren
-            if (head.x < 0 || head.x >= canvas.width || head.y < 0 || head.y >= canvas.height) {
-                endGame();
-                return;
-            }
-
-            // Check botsing met eigen lichaam
-            for (let i = 0; i < snake.length; i++) {
-                if (snake[i].x === head.x && snake[i].y === head.y) {
-                    endGame();
-                    return;
-                }
-            }
-
-            // Voeg het nieuwe hoofd toe aan de voorkant van de slang
-            snake.unshift(head);
-
-            // Check of de slang de appel eet
-            const ateApple = snake[0].x === apple.x && snake[0].y === apple.y;
-            if (ateApple) {
-                score++;
-                scoreElement.innerText = score;
-                generateApple();
-            } else {
-                // Verwijder het achterste stukje als er geen appel is gegeten (zo blijft de lengte gelijk)
-                snake.pop();
-            }
-
-            // Scherm leegmaken voor de nieuwe frame
-            ctx.fillStyle = '#0f172a';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-            // Teken de rode appel
-            ctx.fillStyle = '#f94144';
-            ctx.shadowColor = '#f94144';
-            ctx.shadowBlur = 8;
-            ctx.fillRect(apple.x, apple.y, gridSize - 2, gridSize - 2);
-
-            // Teken de slang (kop is felblauw, lichaam is groenblauw)
-            snake.forEach((part, index) => {
-                ctx.fillStyle = index === 0 ? '#4cc9f0' : '#4895ef';
-                ctx.shadowColor = index === 0 ? '#4cc9f0' : 'transparent';
-                ctx.shadowBlur = index === 0 ? 10 : 0;
-                ctx.fillRect(part.x, part.y, gridSize - 2, gridSize - 2);
-            });
-            ctx.shadowBlur = 0; // Reset schaduw
-        }
-
-        function endGame() {
-            gameActive = false;
-            clearInterval(gameInterval);
-            finalScoreElement.innerText = `Je hebt ${score} appels gegeten!`;
-            gameOverScreen.style.display = 'flex';
-        }
-
-        function resetGame() {
-            // Beginpositie van de slang (3 blokjes lang)
-            snake = [
-                { x: 160, y: 200 },
-                { x: 140, y: 200 },
-                { x: 120, y: 200 }
-            ];
-            dx = gridSize;
-            dy = 0;
-            score = 0;
-            gameActive = true;
-            scoreElement.innerText = score;
-            gameOverScreen.style.display = 'none';
-            
-            generateApple();
-            clearInterval(gameInterval);
-            // Snelheid instellen (elke 100ms een update)
-            gameInterval = setInterval(drawGame, 100);
-        }
-
-        // Start het spel direct op bij laden
-        resetGame();
     </script>
+
 </body>
 </html>
