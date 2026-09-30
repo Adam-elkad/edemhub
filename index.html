@@ -4,10 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Klik Teller met Confetti</title>
-    <!-- Inladen van het confetti script -->
-    <script src="https://jsdelivr.net"></script>
     <style>
-        /* Zorgt dat alles perfect in het midden van het scherm staat */
         body {
             font-family: 'Arial', sans-serif;
             margin: 0;
@@ -18,14 +15,15 @@
             justify-content: center;
             align-items: center;
             background-color: #f0f2f5;
+            overflow: hidden;
         }
 
-        /* Stijl voor de teller bovenaan */
         .teller-container {
             font-size: 2rem;
             margin-bottom: 20px;
             color: #333;
             font-weight: bold;
+            z-index: 10;
         }
 
         #teller {
@@ -35,7 +33,6 @@
             text-align: center;
         }
 
-        /* Stijl voor de grote knop in het midden */
         .klik-knop {
             padding: 20px 40px;
             font-size: 1.5rem;
@@ -47,53 +44,93 @@
             cursor: pointer;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             transition: transform 0.1s, background-color 0.2s;
+            z-index: 10;
         }
 
-        /* Effect als je over de knop zweeft */
-        .klik-knop:hover {
-            background-color: #005a9e;
-        }
+        .klik-knop:hover { background-color: #005a9e; }
+        .klik-knop:active { transform: scale(0.95); }
 
-        /* Effect als je op de knop drukt */
-        .klik-knop:active {
-            transform: scale(0.95);
+        /* Canvas voor de confetti */
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
         }
     </style>
 </head>
 <body>
 
-    <!-- De teller boven de knop -->
+    <canvas id="confetti-canvas"></canvas>
+
     <div class="teller-container">
         Kliks: <span id="teller">0</span>
     </div>
 
-    <!-- De knop in het midden -->
     <button class="klik-knop" onclick="verhoogTeller()">Klik hier!</button>
 
     <script>
-        // We starten de teller op 0
         let aantalKliks = 0;
 
         function verhoogTeller() {
-            // 1. Tel er 1 bij op
             aantalKliks++;
-
-            // 2. Laat het nieuwe getal zien op het scherm
             document.getElementById('teller').innerText = aantalKliks;
 
-            // 3. Controleer of we de 100 hebben bereikt
             if (aantalKliks === 100) {
-                gooiConfetti();
+                startConfetti();
             }
         }
 
-        // Functie die de confetti afschiet
-        function gooiConfetti() {
-            confetti({
-                particleCount: 150,
-                spread: 80,
-                origin: { y: 0.6 } // Start net boven de knop
+        // Eigen ingebouwde confetti-generator (werkt altijd offline)
+        const canvas = document.getElementById("confetti-canvas");
+        const ctx = canvas.getContext("2d");
+        let confettiStukjes = [];
+
+        function pasCanvasFormaatAan() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener("resize", pasCanvasFormaatAan);
+        pasCanvasFormaatAan();
+
+        function startConfetti() {
+            const kleuren = ["#FFC107", "#FF5722", "#E91E63", "#9C27B0", "#3F51B5", "#00BCD4", "#4CAF50"];
+            for (let i = 0; i < 150; i++) {
+                confettiStukjes.push({
+                    x: canvas.width / 2,
+                    y: canvas.height / 2 + 50,
+                    radius: Math.random() * 6 + 4,
+                    kleur: kleuren[Math.floor(Math.random() * kleuren.length)],
+                    vx: (Math.random() - 0.5) * 15,
+                    vy: (Math.random() - 0.8) * 15,
+                    gravity: 0.25
+                });
+            }
+            updateConfetti();
+        }
+
+        function updateConfetti() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            confettiStukjes.forEach((p, index) => {
+                p.x += p.vx;
+                p.y += p.vy;
+                p.vy += p.gravity;
+                
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                ctx.fillStyle = p.color = p.kleur;
+                ctx.fill();
+
+                if (p.y > canvas.height) confettiStukjes.splice(index, 1);
             });
+
+            if (confettiStukjes.length > 0) {
+                requestAnimationFrame(updateConfetti);
+            }
         }
     </script>
 
