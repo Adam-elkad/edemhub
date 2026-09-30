@@ -3,70 +3,97 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mijn Eerste Website</title>
+    <title>Klik Teller met Confetti</title>
+    <!-- Inladen van het confetti script -->
+    <script src="https://jsdelivr.net"></script>
     <style>
-        /* CSS voor de opmaak */
+        /* Zorgt dat alles perfect in het midden van het scherm staat */
         body {
-            font-family: Arial, sans-serif;
-            line-height: 1.6;
+            font-family: 'Arial', sans-serif;
             margin: 0;
             padding: 0;
-            background-color: #f4f4f4;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background-color: #f0f2f5;
+        }
+
+        /* Stijl voor de teller bovenaan */
+        .teller-container {
+            font-size: 2rem;
+            margin-bottom: 20px;
             color: #333;
+            font-weight: bold;
         }
-        header {
-            background: #0078d7;
-            color: #fff;
-            padding: 1rem;
+
+        #teller {
+            color: #0078d7;
+            font-size: 3rem;
+            display: block;
             text-align: center;
         }
-        main {
-            padding: 2rem;
-            max-width: 800px;
-            margin: auto;
-            background: #fff;
-        }
-        footer {
-            text-align: center;
-            padding: 1rem;
-            background: #333;
-            color: #fff;
-            position: fixed;
-            bottom: 0;
-            width: 100%;
-        }
-        button {
-            background: #0078d7;
+
+        /* Stijl voor de grote knop in het midden */
+        .klik-knop {
+            padding: 20px 40px;
+            font-size: 1.5rem;
+            font-weight: bold;
             color: white;
+            background-color: #0078d7;
             border: none;
-            padding: 0.5rem 1rem;
+            border-radius: 50px;
             cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.1s, background-color 0.2s;
         }
-        button:hover {
-            background: #005a9e;
+
+        /* Effect als je over de knop zweeft */
+        .klik-knop:hover {
+            background-color: #005a9e;
+        }
+
+        /* Effect als je op de knop drukt */
+        .klik-knop:active {
+            transform: scale(0.95);
         }
     </style>
 </head>
 <body>
 
-    <header>
-        <h1>Welkom op mijn website</h1>
-    </header>
+    <!-- De teller boven de knop -->
+    <div class="teller-container">
+        Kliks: <span id="teller">0</span>
+    </div>
 
-    <main>
-        <h2>Over deze pagina</h2>
-        <p>Dit is een schoon en eenvoudig sjabloon om te beginnen met [HTML-code](https://www.doublesmart.nl/wat-is/html-code/).</p>
-        <button onclick="toonMelding()">Klik mij</button>
-    </main>
-
-    <footer>
-        <p>&copy; 2026 Mijn Website</p>
-    </footer>
+    <!-- De knop in het midden -->
+    <button class="klik-knop" onclick="verhoogTeller()">Klik hier!</button>
 
     <script>
-        /* JavaScript voor interactiviteit */
-        function toonMelding() {
-            alert('Hallo! Bedankt voor het klikken.');
+        // We starten de teller op 0
+        let aantalKliks = 0;
+
+        function verhoogTeller() {
+            // 1. Tel er 1 bij op
+            aantalKliks++;
+
+            // 2. Laat het nieuwe getal zien op het scherm
+            document.getElementById('teller').innerText = aantalKliks;
+
+            // 3. Controleer of we de 100 hebben bereikt
+            if (aantalKliks === 100) {
+                gooiConfetti();
+            }
+        }
+
+        // Functie die de confetti afschiet
+        function gooiConfetti() {
+            confetti({
+                particleCount: 150,
+                spread: 80,
+                origin: { y: 0.6 } // Start net boven de knop
+            });
         }
     </script>
 
