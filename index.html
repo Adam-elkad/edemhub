@@ -3,10 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Ultimate Clicker Game - Fixed</title>
+    <title>Klik Teller - Feest</title>
     <style>
+        /* Basis wit scherm zoals eerst */
         body {
-            font-family: 'Segoe UI', Roboto, sans-serif;
+            font-family: 'Arial', sans-serif;
             margin: 0;
             padding: 0;
             height: 100vh;
@@ -14,100 +15,52 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+            background-color: #ffffff;
             overflow: hidden;
-            color: #fff;
-            transition: background 0.5s;
+            transition: background-color 0.3s;
         }
 
-        /* Mini-TV rechtsboven */
-        .mini-tv {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            width: 160px;
-            height: 100px;
-            background-color: #111;
-            border: 6px solid #334155;
-            border-radius: 10px;
-            box-shadow: 0 0 20px rgba(0,0,0,0.5);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 5;
-        }
-
-        .tv-scherm {
-            width: 100%;
-            height: 100%;
-            background: radial-gradient(circle, #0284c7 0%, #0f172a 100%);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 0.8rem;
-            color: #38bdf8;
-            font-family: monospace;
-            text-shadow: 0 0 5px #38bdf8;
-        }
-
-        @keyframes tvGlitch {
-            0% { background: #ef4444; }
-            50% { background: #eab308; }
-            100% { background: #3b82f6; }
-        }
-        .tv-alert { animation: tvGlitch 0.2s infinite; color: white !important; font-weight: bold; }
-
-        /* Controlepaneel */
-        .control-panel {
-            text-align: center;
-            z-index: 10;
-            background: rgba(255, 255, 255, 0.05);
-            padding: 40px;
-            border-radius: 20px;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
-        }
-
+        /* De teller boven de knop */
         .teller-container {
-            font-size: 1.5rem;
-            margin-bottom: 25px;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            color: #94a3b8;
+            font-size: 2rem;
+            margin-bottom: 20px;
+            color: #333;
+            font-weight: bold;
+            z-index: 10;
         }
 
         #teller {
-            color: #38bdf8;
-            font-size: 4.5rem;
+            color: #0078d7;
+            font-size: 3.5rem;
             display: block;
-            font-weight: 900;
-            text-shadow: 0 0 20px rgba(56, 189, 248, 0.5);
+            text-align: center;
         }
 
+        /* Grote blauwe knop in het midden */
         .klik-knop {
-            padding: 20px 50px;
+            padding: 20px 40px;
             font-size: 1.5rem;
             font-weight: bold;
             color: white;
-            background: linear-gradient(135deg, #38bdf8 0%, #0284c7 100%);
+            background-color: #0078d7;
             border: none;
             border-radius: 50px;
             cursor: pointer;
-            box-shadow: 0 10px 25px rgba(2, 132, 199, 0.4);
-            transition: transform 0.1s;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.1s, background-color 0.2s;
+            z-index: 10;
         }
-        .klik-knop:hover { transform: translateY(-2px); }
+
+        .klik-knop:hover { background-color: #005a9e; }
         .klik-knop:active { transform: scale(0.95); }
 
-        /* Taart Event */
+        /* Het taartscherm bij 999 kliks */
         .taart-container {
             display: none;
-            position: absolute;
-            z-index: 30;
             flex-direction: column;
             align-items: center;
             justify-content: center;
+            z-index: 20;
         }
 
         .kaarsjes-box {
@@ -115,12 +68,14 @@
             gap: 15px;
             margin-bottom: -5px;
         }
+
         .kaars {
             width: 8px;
             height: 35px;
             background: linear-gradient(to bottom, #eab308, #ef4444);
             position: relative;
         }
+
         .vlam {
             width: 12px;
             height: 18px;
@@ -132,12 +87,16 @@
             animation: flakkeren 0.1s infinite alternate;
             box-shadow: 0 0 10px #ffea00;
         }
+
         @keyframes flakkeren {
             0% { transform: scale(1) rotate(-2deg); }
             100% { transform: scale(1.1) rotate(2deg); }
         }
 
-        .taart-emoji { font-size: 6rem; }
+        .taart-emoji {
+            font-size: 6rem;
+            line-height: 1;
+        }
 
         .blaas-knop {
             margin-top: 25px;
@@ -152,14 +111,18 @@
             box-shadow: 0 0 15px rgba(239, 68, 68, 0.5);
         }
 
+        /* 500 kliks tril-animatie */
         @keyframes shake {
             0% { transform: translate(2px, 2px); }
             50% { transform: translate(-2px, -2px); }
             100% { transform: translate(2px, -2px); }
         }
-        .shake-effect { animation: shake 0.1s infinite; color: #f43f5e !important; }
+        .shake-effect { 
+            animation: shake 0.1s infinite; 
+            color: #ef4444 !important;
+        }
 
-        /* Simpele CSS Confetti Pop-up */
+        /* Confetti vallende stukjes */
         .confetti-pop {
             position: absolute;
             font-size: 2rem;
@@ -167,6 +130,7 @@
             pointer-events: none;
             z-index: 100;
         }
+
         @keyframes vliegOmhoog {
             0% { transform: translate(0, 0) scale(1); opacity: 1; }
             100% { transform: translate(var(--x), var(--y)) scale(0.5); opacity: 0; }
@@ -175,18 +139,15 @@
 </head>
 <body>
 
-    <div class="mini-tv">
-        <div class="tv-scherm" id="tvScherm">MODE: NORMAL</div>
-    </div>
-
-    <div class="control-panel" id="hoofdPaneel">
+    <!-- Hoofdscherm met teller en knop -->
+    <div id="hoofdPaneel" style="text-align: center;">
         <div class="teller-container">
-            Score: <span id="teller">0</span>
+            Kliks: <span id="teller">0</span>
         </div>
-        <button class="klik-knop" id="hoofdKnop" onclick="verhoogTeller()">HIT ME!</button>
+        <button class="klik-knop" id="hoofdKnop" onclick="verhoogTeller()">Klik hier!</button>
     </div>
 
-    <!-- TAART EVENT -->
+    <!-- Taart evenement (spawnt bij 999) -->
     <div class="taart-container" id="taartEvent">
         <div class="kaarsjes-box">
             <div class="kaars"><div class="vlam" id="vlam1"></div></div>
@@ -202,88 +163,80 @@
 
         function verhoogTeller() {
             aantalKliks++;
-            updateSpelStatus();
-        }
-
-        function updateSpelStatus() {
-            const tellerElement = document.getElementById('teller');
-            const tvElement = document.getElementById('tvScherm');
             
+            const tellerElement = document.getElementById('teller');
             tellerElement.innerText = aantalKliks;
 
-            // 1. Confetti effect elke 100 klikken (behalve bij 500)
+            // 1. Elke 100 kliks confetti (behalve bij 500)
             if (aantalKliks % 100 === 0 && aantalKliks !== 500) {
-                maakConfetti();
-                tvElement.innerText = "BOOM! +100";
+                lancerenConfetti(15);
             }
 
-            // 2. Animatie bij exact 500 klikken
+            // 2. Bij 500 kliks: teller trilt 3 seconden
             if (aantalKliks === 500) {
                 tellerElement.classList.add('shake-effect');
-                tvElement.classList.add('tv-alert');
-                tvElement.innerText = "⚠️ DANGER ⚠️";
-                maakConfetti();
-                
+                lancerenConfetti(30);
                 setTimeout(() => {
                     tellerElement.classList.remove('shake-effect');
-                    tvElement.classList.remove('tv-alert');
-                    tvElement.innerText = "MODE: HARD";
                 }, 3000);
             }
 
-            // 3. Bij 999 klikken wordt het scherm zwart en verschijnt de taart
+            // 3. Bij 999 kliks: scherm wordt zwart en taart verschijnt
             if (aantalKliks === 999) {
-                document.body.style.background = "#000"; 
-                document.getElementById('hoofdPaneel').style.opacity = "0"; 
-                document.getElementById('hoofdPaneel').style.pointerEvents = "none";
-                tvElement.innerText = "MAKE A WISH";
-                
-                setTimeout(() => {
-                    document.getElementById('taartEvent').style.display = "flex";
-                }, 500);
+                document.body.style.backgroundColor = "#000000";
+                document.getElementById('hoofdPaneel').style.display = "none";
+                document.getElementById('taartEvent').style.display = "flex";
             }
         }
 
         function blaasKaarsjesUit() {
-            aantalKliks++; // Naar 1000!
+            aantalKliks++; // We gaan naar 1000 kliks!
             
-            // Kaarsvlammen uitzetten
+            // Doe de kaarsjes uit
             document.getElementById('vlam1').style.display = 'none';
             document.getElementById('vlam2').style.display = 'none';
             document.getElementById('vlam3').style.display = 'none';
             
+            // Wacht even, zet het scherm terug op wit en start het mega feest
             setTimeout(() => {
-                document.getElementById('taartEvent').style.display = "none"; 
-                document.body.style.background = "#1e1b4b";
+                document.getElementById('taartEvent').style.display = "none";
+                document.body.style.backgroundColor = "#ffffff";
                 
-                const tvElement = document.getElementById('tvScherm');
                 const hoofdpaneel = document.getElementById('hoofdPaneel');
-                const knopElement = document.getElementById('hoofdKnop');
-                
-                hoofdpaneel.style.opacity = "1";
-                hoofdpaneel.style.pointerEvents = "auto";
+                hoofdpaneel.style.display = "block";
                 document.getElementById('teller').innerText = "1000";
-                tvElement.innerText = "🎉 WINNER 🎉";
-                knopElement.innerText = "🏆 GEWONNEN! 🏆";
-                knopElement.style.background = "#e91e63";
                 
-                // Schiet een grote golf confetti af
-                for (let i = 0; i < 40; i++) {
-                    setTimeout(maakConfetti, i * 50);
+                const knopElement = document.getElementById('hoofdKnop');
+                knopElement.innerText = "GEWONNEN! 🎉";
+                knopElement.style.backgroundColor = "#e91e63";
+
+                // Non-stop confetti feestregen
+                for (let i = 0; i < 60; i++) {
+                    setTimeout(() => { lancerenConfetti(5); }, i * 100);
                 }
-            }, 600);
+            }, 800);
         }
 
-        // Super stabiele confetti zonder vastlopers
-        function maakConfetti() {
-            const confettiEmojis = ['🎉', '✨', '⚡', '⭐', '🎈'];
-            const p = document.createElement('div');
-            p.classList.add('confetti-pop');
-            p.innerText = confettiEmojis[Math.floor(Math.random() * confettiEmojis.length)];
-            
-            // Random richting instellen via CSS variabelen
-            const randomX = (Math.random() - 0.5) * 400 + 'px';
-            const randomY = -(Math.random() * 300 + 200) + 'px';
-            p.style.setProperty('--x', randomX);
-            p.style.setProperty('--y', randomY);
-            
+        // De confetti-maker
+        function lancerenConfetti(aantal) {
+            const emojis = ['🎉', '✨', '🎈', '🍬', '⭐'];
+            for (let i = 0; i < aantal; i++) {
+                const p = document.createElement('div');
+                p.classList.add('confetti-pop');
+                p.innerText = emojis[Math.floor(Math.random() * emojis.length)];
+                
+                const randomX = (Math.random() - 0.5) * 500 + 'px';
+                const randomY = -(Math.random() * 300 + 200) + 'px';
+                p.style.setProperty('--x', randomX);
+                p.style.setProperty('--y', randomY);
+                
+                p.style.left = '50%';
+                p.style.top = '50%';
+                
+                document.body.appendChild(p);
+                setTimeout(() => { p.remove(); }, 1500);
+            }
+        }
+    </script>
+</body>
+</html>
