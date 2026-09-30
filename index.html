@@ -3,10 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Klik Teller - Feest Editie</title>
+    <title>The Ultimate Clicker Game</title>
     <style>
+        /* Donkere, spannende achtergrond */
         body {
-            font-family: 'Arial', sans-serif;
+            font-family: 'Segoe UI', Roboto, sans-serif;
             margin: 0;
             padding: 0;
             height: 100vh;
@@ -14,43 +15,105 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            background-color: #f0f2f5;
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
             overflow: hidden;
-            transition: background-color 0.5s;
+            color: #fff;
+            transition: background 0.5s;
+        }
+
+        /* De Mini-TV op de achtergrond */
+        .mini-tv {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 160px;
+            height: 100px;
+            background-color: #111;
+            border: 6px solid #334155;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5), inset 0 0 10px rgba(0,255,0,0.2);
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 5;
+        }
+
+        .tv-scherm {
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, #0284c7 0%, #0f172a 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 0.8rem;
+            color: #38bdf8;
+            font-family: monospace;
+            text-shadow: 0 0 5px #38bdf8;
+        }
+
+        /* TV animatie voor 500 kliks */
+        @keyframes tvGlitch {
+            0% { background: #ef4444; opacity: 1; }
+            50% { background: #eab308; opacity: 0.5; }
+            100% { background: #3b82f6; opacity: 1; }
+        }
+        .tv-alert {
+            animation: tvGlitch 0.2s infinite;
+            color: white !important;
+            font-weight: bold;
+        }
+
+        /* Interface & Teller */
+        .control-panel {
+            text-align: center;
+            z-index: 10;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 40px;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
         }
 
         .teller-container {
-            font-size: 2rem;
-            margin-bottom: 20px;
-            color: #333;
-            font-weight: bold;
-            z-index: 10;
+            font-size: 1.5rem;
+            margin-bottom: 25px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: #94a3b8;
         }
 
         #teller {
-            color: #0078d7;
-            font-size: 3rem;
+            color: #38bdf8;
+            font-size: 4.5rem;
             display: block;
-            text-align: center;
-            transition: transform 0.1s;
+            font-weight: 900;
+            text-shadow: 0 0 20px rgba(56, 189, 248, 0.5);
         }
 
+        /* Grote klikknop */
         .klik-knop {
-            padding: 20px 40px;
+            padding: 20px 50px;
             font-size: 1.5rem;
             font-weight: bold;
             color: white;
-            background-color: #0078d7;
+            background: linear-gradient(135deg, #38bdf8 0%, #0284c7 100%);
             border: none;
             border-radius: 50px;
             cursor: pointer;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            transition: transform 0.1s, background-color 0.2s;
-            z-index: 10;
+            box-shadow: 0 10px 25px rgba(2, 132, 199, 0.4);
+            transition: transform 0.1s, box-shadow 0.2s;
         }
 
-        .klik-knop:hover { background-color: #005a9e; }
-        .klik-knop:active { transform: scale(0.95); }
+        .klik-knop:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 30px rgba(2, 132, 199, 0.6);
+        }
+
+        .klik-knop:active {
+            transform: scale(0.95);
+        }
 
         /* Canvas voor de confetti */
         canvas {
@@ -63,35 +126,56 @@
             z-index: 1;
         }
 
-        /* Feest-animatie voor de tekst */
+        /* ONZICHTBARE/VERSTOPTE KNOP ONDERAAN */
+        .verstopte-knop {
+            position: absolute;
+            bottom: 15px;
+            left: 45%;
+            padding: 8px 15px;
+            background: transparent;
+            border: 1px solid transparent;
+            color: transparent;
+            cursor: pointer;
+            border-radius: 5px;
+            z-index: 20;
+            font-size: 0.7rem;
+            transition: all 0.3s;
+        }
+        /* Alleen een heel klein beetje zichtbaar als je er exact op staat met je muis */
+        .verstopte-knop:hover {
+            border: 1px solid rgba(255,255,255,0.15);
+            background: rgba(255, 255, 255, 0.02);
+            color: rgba(255,255,255,0.2);
+        }
+
+        /* Animaties voor de teller */
         @keyframes shake {
-            0% { transform: translate(1px, 1px) rotate(0deg); }
-            10% { transform: translate(-1px, -2px) rotate(-1deg); }
-            20% { transform: translate(-3px, 0px) rotate(1deg); }
-            30% { transform: translate(0px, 2px) rotate(0deg); }
-            40% { transform: translate(1px, -1px) rotate(1deg); }
-            50% { transform: translate(-1px, 2px) rotate(-1deg); }
-            60% { transform: translate(-3px, 1px) rotate(0deg); }
-            70% { transform: translate(2px, 1px) rotate(-1deg); }
-            80% { transform: translate(-1px, -1px) rotate(1deg); }
-            90% { transform: translate(2px, 2px) rotate(0deg); }
-            100% { transform: translate(1px, -2px) rotate(-1deg); }
+            0% { transform: translate(2px, 2px); }
+            50% { transform: translate(-2px, -2px); }
+            100% { transform: translate(2px, -2px); }
         }
-        .feest-tekst {
-            animation: shake 0.5s infinite;
-            color: #ff007f !important;
-        }
+        .shake-effect { animation: shake 0.1s infinite; color: #f43f5e !important; }
     </style>
 </head>
 <body>
 
     <canvas id="confetti-canvas"></canvas>
 
-    <div class="teller-container">
-        Kliks: <span id="teller">0</span>
+    <!-- De kleine TV rechtsboven -->
+    <div class="mini-tv">
+        <div class="tv-scherm" id="tvScherm">STANDBY</div>
     </div>
 
-    <button class="klik-knop" id="hoofdKnop" onclick="verhoogTeller()">Klik hier!</button>
+    <!-- Het hoofdpaneel -->
+    <div class="control-panel">
+        <div class="teller-container">
+            Score: <span id="teller">0</span>
+        </div>
+        <button class="klik-knop" id="hoofdKnop" onclick="verhoogTeller()">HIT ME!</button>
+    </div>
+
+    <!-- DE VERSTOPTE CHEAT KNOP -->
+    <button class="verstopte-knop" id="cheatKnop" onclick="activeerCheat()">[ HIER NIET KLIKKEN ]</button>
 
     <script>
         let aantalKliks = 0;
@@ -99,24 +183,63 @@
 
         function verhoogTeller() {
             aantalKliks++;
+            updateSpelStatus();
+        }
+
+        function activeerCheat() {
+            // Geef 499 kliks cadeau
+            aantalKliks += 499;
+            // Verberg de knop voor altijd
+            document.getElementById('cheatKnop').style.display = 'none';
+            updateSpelStatus();
+        }
+
+        function updateSpelStatus() {
             const tellerElement = document.getElementById('teller');
+            const tvElement = document.getElementById('tvScherm');
+            const knopElement = document.getElementById('hoofdKnop');
+            
             tellerElement.innerText = aantalKliks;
 
-            // 1. Giga feest bij exact 1000 kliks
+            // TV Tekst updaten gebaseerd op status
+            if (aantalKliks < 500) {
+                tvElement.innerText = "MODE: NORMAL";
+            }
+
+            // --- MIJLPALEN ---
+
+            // 1. Elke 100 kliks (behalve bij 500 en 1000)
+            if (aantalKliks % 100 === 0 && aantalKliks !== 500 && aantalKliks !== 1000) {
+                gooiConfetti(40);
+                tvElement.innerText = "BOOM! +100";
+            }
+
+            // 2. BIJ 500 KLIKS ANIMATIE
+            if (aantalKliks === 500) {
+                tellerElement.classList.add('shake-effect');
+                tvElement.classList.add('tv-alert');
+                tvElement.innerText = "⚠️ DANGER ⚠️";
+                gooiConfetti(100);
+                
+                // Na 3 seconden stopt de 500-animatie weer
+                setTimeout(() => {
+                    tellerElement.classList.remove('shake-effect');
+                    tvElement.classList.remove('tv-alert');
+                    tvElement.innerText = "MODE: HARD";
+                }, 3000);
+            }
+
+            // 3. BIJ 1000 KLIKS MEGA CONFETTI FEEST
             if (aantalKliks === 1000) {
                 startMegaFeest();
-            } 
-            // 2. Normale confetti bij ELKE 100 kliks (behalve bij de 1000, want dan is het giga feest)
-            else if (aantalKliks % 100 === 0) {
-                gooiConfetti(50); // Gewone knal
             }
         }
 
-        // De confetti-tekenaar
+        // --- CONFETTI ENGINE ---
         const canvas = document.getElementById("confetti-canvas");
         const ctx = canvas.getContext("2d");
         let confettiStukjes = [];
-        const kleuren = ["#FFC107", "#FF5722", "#E91E63", "#9C27B0", "#3F51B5", "#00BCD4", "#4CAF50", "#FF007F", "#7FFF00"];
+        const kleuren = ["#38bdf8", "#34d399", "#fb7185", "#f43f5e", "#fbbf24", "#a78bfa"];
 
         function pasCanvasFormaatAan() {
             canvas.width = window.innerWidth;
@@ -125,81 +248,47 @@
         window.addEventListener("resize", pasCanvasFormaatAan);
         pasCanvasFormaatAan();
 
-        function gooiConfetti(aantal, vanZijkant = false) {
+        function gooiConfetti(aantal) {
             for (let i = 0; i < aantal; i++) {
                 confettiStukjes.push({
-                    x: vanZijkant ? (Math.random() > 0.5 ? 0 : canvas.width) : canvas.width / 2,
-                    y: vanZijkant ? Math.random() * (canvas.height / 2) : canvas.height / 2 + 50,
-                    radius: Math.random() * 6 + 4,
+                    x: canvas.width / 2,
+                    y: canvas.height / 2,
+                    radius: Math.random() * 5 + 4,
                     kleur: kleuren[Math.floor(Math.random() * kleuren.length)],
-                    vx: vanZijkant ? (vanZijkant.x === 0 ? Math.random() * 15 : -Math.random() * 15) : (Math.random() - 0.5) * 20,
-                    vy: (Math.random() - 0.8) * 15,
-                    gravity: 0.25
+                    vx: (Math.random() - 0.5) * 15,
+                    vy: (Math.random() - 0.7) * 15,
+                    gravity: 0.2
                 });
             }
-            // Start de animatieloop als die nog niet draait
-            if (confettiStukjes.length === aantal) {
-                updateConfetti();
-            }
+            if (confettiStukjes.length === aantal) updateConfetti();
         }
 
         function startMegaFeest() {
-            const tellerElement = document.getElementById('teller');
+            const tvElement = document.getElementById('tvScherm');
             const knopElement = document.getElementById('hoofdKnop');
             
-            // Maak de boel wild
-            tellerElement.classList.add('feest-tekst');
-            document.body.style.backgroundColor = "#222"; // Donkere discovloer
-            knopElement.style.backgroundColor = "#ff007f";
-            knopElement.innerText = "MEGA FEEST!!! 🎉";
+            document.body.style.background = "#000"; 
+            tvElement.innerText = "🎉 PARTY MODE 🎉";
+            knopElement.innerText = "WINNER! 🏆";
 
-            // Schiet 5 seconden lang constant confetti af vanaf de zijkanten en het midden
             feestInterval = setInterval(() => {
-                // Schiet vanaf links
-                for(let i=0; i<10; i++) {
-                    confettiStukjes.push({ x: 0, y: canvas.height * 0.8, radius: Math.random() * 6 + 4, kleur: kleuren[Math.floor(Math.random() * kleuren.length)], vx: Math.random() * 15 + 5, vy: -Math.random() * 20 - 5, gravity: 0.3 });
+                // Spuit vanaf links
+                for(let i=0; i<8; i++) {
+                    confettiStukjes.push({ x: 0, y: canvas.height * 0.8, radius: Math.random()*5+4, kleur: kleuren[Math.floor(Math.random()*kleuren.length)], vx: Math.random()*12+4, vy: -Math.random()*18-4, gravity: 0.25 });
                 }
-                // Schiet vanaf rechts
-                for(let i=0; i<10; i++) {
-                    confettiStukjes.push({ x: canvas.width, y: canvas.height * 0.8, radius: Math.random() * 6 + 4, kleur: kleuren[Math.floor(Math.random() * kleuren.length)], vx: -Math.random() * 15 - 5, vy: -Math.random() * 20 - 5, gravity: 0.3 });
+                // Spuit vanaf rechts
+                for(let i=0; i<8; i++) {
+                    confettiStukjes.push({ x: canvas.width, y: canvas.height * 0.8, radius: Math.random()*5+4, kleur: kleuren[Math.floor(Math.random()*kleuren.length)], vx: -Math.random()*12-4, vy: -Math.random()*18-4, gravity: 0.25 });
                 }
-            }, 100);
+            }, 80);
 
-            // Stop het feestje na 5 seconden en zet alles netjes terug
             setTimeout(() => {
                 clearInterval(feestInterval);
-                tellerElement.classList.remove('feest-tekst');
-                document.body.style.backgroundColor = "#f0f2f5";
-                knopElement.style.backgroundColor = "#0078d7";
-                knopElement.innerText = "Klik hier!";
-            }, 5000);
+                document.body.style.background = "linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%)";
+                knopElement.innerText = "HIT ME!";
+                tvElement.innerText = "MODE: MAX";
+            }, 6000);
         }
 
         function updateConfetti() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            
-            for (let i = confettiStukjes.length - 1; i >= 0; i--) {
-                let p = confettiStukjes[i];
-                p.x += p.vx;
-                p.y += p.vy;
-                p.vy += p.gravity;
-                
-                ctx.beginPath();
-                ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-                ctx.fillStyle = p.kleur;
-                ctx.fill();
-
-                // Verwijder stukjes die van het scherm vallen
-                if (p.y > canvas.height || p.x < 0 || p.x > canvas.width) {
-                    confettiStukjes.splice(i, 1);
-                }
-            }
-
-            if (confettiStukjes.length > 0) {
-                requestAnimationFrame(updateConfetti);
-            }
-        }
-    </script>
-
-</body>
-</html>
