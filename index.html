@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Klik Teller met Confetti</title>
+    <title>Klik Teller - Feest Editie</title>
     <style>
         body {
             font-family: 'Arial', sans-serif;
@@ -16,6 +16,7 @@
             align-items: center;
             background-color: #f0f2f5;
             overflow: hidden;
+            transition: background-color 0.5s;
         }
 
         .teller-container {
@@ -31,6 +32,7 @@
             font-size: 3rem;
             display: block;
             text-align: center;
+            transition: transform 0.1s;
         }
 
         .klik-knop {
@@ -60,6 +62,25 @@
             pointer-events: none;
             z-index: 1;
         }
+
+        /* Feest-animatie voor de tekst */
+        @keyframes shake {
+            0% { transform: translate(1px, 1px) rotate(0deg); }
+            10% { transform: translate(-1px, -2px) rotate(-1deg); }
+            20% { transform: translate(-3px, 0px) rotate(1deg); }
+            30% { transform: translate(0px, 2px) rotate(0deg); }
+            40% { transform: translate(1px, -1px) rotate(1deg); }
+            50% { transform: translate(-1px, 2px) rotate(-1deg); }
+            60% { transform: translate(-3px, 1px) rotate(0deg); }
+            70% { transform: translate(2px, 1px) rotate(-1deg); }
+            80% { transform: translate(-1px, -1px) rotate(1deg); }
+            90% { transform: translate(2px, 2px) rotate(0deg); }
+            100% { transform: translate(1px, -2px) rotate(-1deg); }
+        }
+        .feest-tekst {
+            animation: shake 0.5s infinite;
+            color: #ff007f !important;
+        }
     </style>
 </head>
 <body>
@@ -70,24 +91,32 @@
         Kliks: <span id="teller">0</span>
     </div>
 
-    <button class="klik-knop" onclick="verhoogTeller()">Klik hier!</button>
+    <button class="klik-knop" id="hoofdKnop" onclick="verhoogTeller()">Klik hier!</button>
 
     <script>
         let aantalKliks = 0;
+        let feestInterval;
 
         function verhoogTeller() {
             aantalKliks++;
-            document.getElementById('teller').innerText = aantalKliks;
+            const tellerElement = document.getElementById('teller');
+            tellerElement.innerText = aantalKliks;
 
-            if (aantalKliks === 100) {
-                startConfetti();
+            // 1. Giga feest bij exact 1000 kliks
+            if (aantalKliks === 1000) {
+                startMegaFeest();
+            } 
+            // 2. Normale confetti bij ELKE 100 kliks (behalve bij de 1000, want dan is het giga feest)
+            else if (aantalKliks % 100 === 0) {
+                gooiConfetti(50); // Gewone knal
             }
         }
 
-        // Eigen ingebouwde confetti-generator (werkt altijd offline)
+        // De confetti-tekenaar
         const canvas = document.getElementById("confetti-canvas");
         const ctx = canvas.getContext("2d");
         let confettiStukjes = [];
+        const kleuren = ["#FFC107", "#FF5722", "#E91E63", "#9C27B0", "#3F51B5", "#00BCD4", "#4CAF50", "#FF007F", "#7FFF00"];
 
         function pasCanvasFormaatAan() {
             canvas.width = window.innerWidth;
@@ -96,37 +125,75 @@
         window.addEventListener("resize", pasCanvasFormaatAan);
         pasCanvasFormaatAan();
 
-        function startConfetti() {
-            const kleuren = ["#FFC107", "#FF5722", "#E91E63", "#9C27B0", "#3F51B5", "#00BCD4", "#4CAF50"];
-            for (let i = 0; i < 150; i++) {
+        function gooiConfetti(aantal, vanZijkant = false) {
+            for (let i = 0; i < aantal; i++) {
                 confettiStukjes.push({
-                    x: canvas.width / 2,
-                    y: canvas.height / 2 + 50,
+                    x: vanZijkant ? (Math.random() > 0.5 ? 0 : canvas.width) : canvas.width / 2,
+                    y: vanZijkant ? Math.random() * (canvas.height / 2) : canvas.height / 2 + 50,
                     radius: Math.random() * 6 + 4,
                     kleur: kleuren[Math.floor(Math.random() * kleuren.length)],
-                    vx: (Math.random() - 0.5) * 15,
+                    vx: vanZijkant ? (vanZijkant.x === 0 ? Math.random() * 15 : -Math.random() * 15) : (Math.random() - 0.5) * 20,
                     vy: (Math.random() - 0.8) * 15,
                     gravity: 0.25
                 });
             }
-            updateConfetti();
+            // Start de animatieloop als die nog niet draait
+            if (confettiStukjes.length === aantal) {
+                updateConfetti();
+            }
+        }
+
+        function startMegaFeest() {
+            const tellerElement = document.getElementById('teller');
+            const knopElement = document.getElementById('hoofdKnop');
+            
+            // Maak de boel wild
+            tellerElement.classList.add('feest-tekst');
+            document.body.style.backgroundColor = "#222"; // Donkere discovloer
+            knopElement.style.backgroundColor = "#ff007f";
+            knopElement.innerText = "MEGA FEEST!!! 🎉";
+
+            // Schiet 5 seconden lang constant confetti af vanaf de zijkanten en het midden
+            feestInterval = setInterval(() => {
+                // Schiet vanaf links
+                for(let i=0; i<10; i++) {
+                    confettiStukjes.push({ x: 0, y: canvas.height * 0.8, radius: Math.random() * 6 + 4, kleur: kleuren[Math.floor(Math.random() * kleuren.length)], vx: Math.random() * 15 + 5, vy: -Math.random() * 20 - 5, gravity: 0.3 });
+                }
+                // Schiet vanaf rechts
+                for(let i=0; i<10; i++) {
+                    confettiStukjes.push({ x: canvas.width, y: canvas.height * 0.8, radius: Math.random() * 6 + 4, kleur: kleuren[Math.floor(Math.random() * kleuren.length)], vx: -Math.random() * 15 - 5, vy: -Math.random() * 20 - 5, gravity: 0.3 });
+                }
+            }, 100);
+
+            // Stop het feestje na 5 seconden en zet alles netjes terug
+            setTimeout(() => {
+                clearInterval(feestInterval);
+                tellerElement.classList.remove('feest-tekst');
+                document.body.style.backgroundColor = "#f0f2f5";
+                knopElement.style.backgroundColor = "#0078d7";
+                knopElement.innerText = "Klik hier!";
+            }, 5000);
         }
 
         function updateConfetti() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             
-            confettiStukjes.forEach((p, index) => {
+            for (let i = confettiStukjes.length - 1; i >= 0; i--) {
+                let p = confettiStukjes[i];
                 p.x += p.vx;
                 p.y += p.vy;
                 p.vy += p.gravity;
                 
                 ctx.beginPath();
                 ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-                ctx.fillStyle = p.color = p.kleur;
+                ctx.fillStyle = p.kleur;
                 ctx.fill();
 
-                if (p.y > canvas.height) confettiStukjes.splice(index, 1);
-            });
+                // Verwijder stukjes die van het scherm vallen
+                if (p.y > canvas.height || p.x < 0 || p.x > canvas.width) {
+                    confettiStukjes.splice(i, 1);
+                }
+            }
 
             if (confettiStukjes.length > 0) {
                 requestAnimationFrame(updateConfetti);
