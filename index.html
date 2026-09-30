@@ -3,9 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Ultimate Clicker Game - Cake Edition</title>
+    <title>The Ultimate Clicker Game</title>
     <style>
-        /* Cyberpunk achtergrond */
         body {
             font-family: 'Segoe UI', Roboto, sans-serif;
             margin: 0;
@@ -59,7 +58,7 @@
         }
         .tv-alert { animation: tvGlitch 0.2s infinite; color: white !important; font-weight: bold; }
 
-        /* Interface paneel in het midden */
+        /* Controlepaneel in het midden */
         .control-panel {
             text-align: center;
             z-index: 10;
@@ -103,29 +102,30 @@
         .klik-knop:hover { transform: translateY(-2px); }
         .klik-knop:active { transform: scale(0.95); }
 
-        /* DE VERSTOPTE CHEAT KNOP ONDERAAN */
+        /* De verborgen cheat-balk helemaal onderaan */
         .verstopte-knop {
             position: absolute;
-            bottom: 15px;
-            left: 45%;
-            padding: 8px 15px;
+            bottom: 0px;
+            left: 0px;
+            width: 100%;
+            height: 40px;
             background: transparent;
-            border: 1px solid transparent;
+            border: none;
             color: transparent;
             cursor: pointer;
-            border-radius: 5px;
             z-index: 20;
-            font-size: 0.7rem;
+            font-size: 0.8rem;
             transition: all 0.3s;
+            text-align: center;
         }
         .verstopte-knop:hover {
-            border: 1px solid rgba(255,255,255,0.15);
-            color: rgba(255,255,255,0.2);
+            background: rgba(255, 255, 255, 0.03);
+            color: rgba(255, 255, 255, 0.3);
         }
 
-        /* 999 TILLER TAART SCENE CSS */
+        /* Taart event voor 999 kliks */
         .taart-container {
-            display: none; /* Standaard onzichtbaar */
+            display: none;
             position: absolute;
             z-index: 30;
             flex-direction: column;
@@ -133,7 +133,6 @@
             justify-content: center;
         }
 
-        /* De getekende kaarsjes en vlammetjes */
         .kaarsjes-box {
             display: flex;
             gap: 15px;
@@ -148,7 +147,6 @@
         .vlam {
             width: 12px;
             height: 18px;
-            background: #ff7b00;
             background: radial-gradient(circle, #ffea00 0%, #ff7b00 100%);
             border-radius: 50% 50% 20% 20%;
             position: absolute;
@@ -165,7 +163,6 @@
         .taart-emoji {
             font-size: 6rem;
             line-height: 1;
-            filter: drop-shadow(0 0 10px rgba(255,255,255,0.2));
         }
 
         .blaas-knop {
@@ -187,7 +184,6 @@
             100% { transform: scale(1); }
         }
 
-        /* Schudden voor 500 */
         @keyframes shake {
             0% { transform: translate(2px, 2px); }
             50% { transform: translate(-2px, -2px); }
@@ -206,7 +202,6 @@
         <div class="tv-scherm" id="tvScherm">MODE: NORMAL</div>
     </div>
 
-    <!-- Hoofdpaneel -->
     <div class="control-panel" id="hoofdPaneel">
         <div class="teller-container">
             Score: <span id="teller">0</span>
@@ -214,7 +209,7 @@
         <button class="klik-knop" id="hoofdKnop" onclick="verhoogTeller()">HIT ME!</button>
     </div>
 
-    <!-- HET GEHEIME TAART EVENT (999 KLIKS) -->
+    <!-- TAART EVENT -->
     <div class="taart-container" id="taartEvent">
         <div class="kaarsjes-box">
             <div class="kaars"><div class="vlam" id="vlam1"></div></div>
@@ -225,12 +220,25 @@
         <button class="blaas-knop" onclick="blaasKaarsjesUit()">BLAAS DE KAARSEN UIT! (KLIK 1000)</button>
     </div>
 
-    <!-- GEHEIME CHEAT KNOP -->
-    <button class="verstopte-knop" id="cheatKnop" onclick="activeerCheat()">[ HIER NIET KLIKKEN ]</button>
+    <!-- DE VERSTOPTE CHEAT BALK -->
+    <button class="verstopte-knop" id="cheatKnop" onclick="activeerCheat()">▲ [ GEHEIME CHEAT: KLIK HIER ] ▲</button>
 
     <script>
         let aantalKliks = 0;
         let feestInterval;
+
+        // Confetti initialisatie
+        const canvas = document.getElementById("confetti-canvas");
+        const ctx = canvas.getContext("2d");
+        let confettiStukjes = [];
+        const kleuren = ["#38bdf8", "#34d399", "#fb7185", "#f43f5e", "#fbbf24", "#a78bfa"];
+
+        function pasCanvasFormaatAan() { 
+            canvas.width = window.innerWidth; 
+            canvas.height = window.innerHeight; 
+        }
+        window.addEventListener("resize", pasCanvasFormaatAan);
+        pasCanvasFormaatAan();
 
         function verhoogTeller() {
             aantalKliks++;
@@ -238,8 +246,8 @@
         }
 
         function activeerCheat() {
-            aantalKliks += 499; // Naar 499 brengen voor de 500-animatie
-            document.getElementById('cheatKnop').style.display = 'none';
+            aantalKliks = 998; 
+            document.getElementById('cheatKnop').style.display = 'none'; 
             updateSpelStatus();
         }
 
@@ -249,15 +257,17 @@
             
             tellerElement.innerText = aantalKliks;
 
-            if (aantalKliks < 500) { tvElement.innerText = "MODE: NORMAL"; }
+            if (aantalKliks < 500) { 
+                tvElement.innerText = "MODE: NORMAL"; 
+            }
 
-            // 1. Elke 100 kliks confetti
+            // 1. Confetti elke 100 kliks (behalve bij 500 en 999)
             if (aantalKliks % 100 === 0 && aantalKliks !== 500) {
                 gooiConfetti(40);
                 tvElement.innerText = "BOOM! +100";
             }
 
-            // 2. BIJ 500 KLIKS ANIMATIE
+            // 2. Bij 500 kliks
             if (aantalKliks === 500) {
                 tellerElement.classList.add('shake-effect');
                 tvElement.classList.add('tv-alert');
@@ -270,27 +280,23 @@
                 }, 3000);
             }
 
-            // 3. BIJ 999 KLIKS: HET SCHERM WORDT ZWART EN DE TAART SPAWNT
+            // 3. Bij 999 kliks wordt het scherm zwart en komt de taart
             if (aantalKliks === 999) {
-                document.body.style.background = "#000"; // Pikzwart scherm
-                document.getElementById('hoofdPaneel').style.opacity = "0"; // Verberg hoofdpaneel
+                document.body.style.background = "#000"; 
+                document.getElementById('hoofdPaneel').style.opacity = "0"; 
                 document.getElementById('hoofdPaneel').style.pointerEvents = "none";
                 tvElement.innerText = "MAKE A WISH";
                 
-                // Laat de taart tevoorschijn komen
                 setTimeout(() => {
                     document.getElementById('taartEvent').style.display = "flex";
                 }, 500);
             }
         }
 
-        // DE LAATSTE KLIK: 1000 HALE EN KAARSEN UITBLAZEN
         function blaasKaarsjesUit() {
-            aantalKliks++; // We gaan naar 1000!
+            aantalKliks++; 
             
-            // Doof de vlammetjes
             document.getElementById('vlam1').style.display = 'none';
             document.getElementById('vlam2').style.display = 'none';
             document.getElementById('vlam3').style.display = 'none';
             
-            // Korte pauze nadat de kaarsen uitgaan, daarna barst het feest los
